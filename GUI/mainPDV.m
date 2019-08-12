@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 09-Aug-2019 11:22:36
+% Last Modified by GUIDE v2.5 12-Aug-2019 13:35:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,16 +55,30 @@ function mainPDV_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for mainPDV
 handles.output = hObject;
 hObject.CurrentAxes=handles.Logo;
-[A,map,~]  = imread('Metroid.png','BackGroundColor',Colors.BackGround.getColor());
+[A,map,~]  = imread('Metroid.png','BackGroundColor',get(handles.figure1,'color'));
 imshow(A,map);
 handles.logo.HandleVisibility='off';
 handles.logo.Visible='off';
-% Update handles structure
+
+handles.tabManager = TabManager( hObject );
+
+% Set-up a selection changed function on the create tab groups
+tabGroups = handles.tabManager.TabGroups;
+for tgi=1:length(tabGroups)
+    set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
+end
+
+
+
 guidata(hObject, handles);
 
 % UIWAIT makes mainPDV wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+% Called when a user clicks on a tab
+function tabChangedCB(src, eventdata)
+
+disp(['Changing tab from ' eventdata.OldValue.Title ' to ' eventdata.NewValue.Title ] );
 
 % --- Outputs from this function are returned to the command line.
 function varargout = mainPDV_OutputFcn(hObject, eventdata, handles) 
@@ -75,3 +89,126 @@ function varargout = mainPDV_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+
+function CutoffEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to CutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of CutoffEdit as text
+%        str2double(get(hObject,'String')) returns contents of CutoffEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function CutoffEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CutoffEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in buttonSelectMain.
+function buttonSelectMain_Callback(hObject, eventdata, handles)
+% hObject    handle to buttonSelectMain (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+tabMan = handles.tabManager;
+tabMan.Handles.TabA.SelectedTab = tabMan.Handles.TabC01Main;
+tabMan.Handles.TabB.SelectedTab = tabMan.Handles.TabC02Supplementary;
+
+
+% --- Executes during object creation, after setting all properties.
+function Time0Text_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Time0Text (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+
+function TimeWindow_Callback(hObject, eventdata, handles)
+% hObject    handle to TimeWindow (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of TimeWindow as text
+%        str2double(get(hObject,'String')) returns contents of TimeWindow as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function TimeWindow_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TimeWindow (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function TransWindowEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to TransWindowEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of TransWindowEdit as text
+%        str2double(get(hObject,'String')) returns contents of TransWindowEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function TransWindowEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TransWindowEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ThreshEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to ThreshEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ThreshEdit as text
+%        str2double(get(hObject,'String')) returns contents of ThreshEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ThreshEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ThreshEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in RunSTFT.
+function RunSTFT_Callback(hObject, eventdata, handles)
+% hObject    handle to RunSTFT (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in RunPeakAlg.
+function RunPeakAlg_Callback(hObject, eventdata, handles)
+% hObject    handle to RunPeakAlg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

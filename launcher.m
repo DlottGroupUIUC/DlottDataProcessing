@@ -57,6 +57,7 @@ handles.output = hObject;
 
 if (~isdeployed)
     addpath(genpath('./Enum'));
+    addpath(genpath('./Functions'));
     addpath(genpath('./GUI'));
     addpath(genpath('./Image'));
     addpath(genpath('./Main Classes'));
@@ -65,7 +66,7 @@ if (~isdeployed)
 end
 
 hObject.CurrentAxes=handles.Logo;
-[A,map,~]  = imread('Metroid.png','BackGroundColor',Colors.BackGround.getColor());
+[A,map,~]  = imread('Metroid.png','BackGroundColor',get(handles.figure1,'Color'));
 imshow(A,map);
 handles.logo.HandleVisibility='off';
 handles.logo.Visible='off';
