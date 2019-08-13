@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 12-Aug-2019 13:35:36
+% Last Modified by GUIDE v2.5 12-Aug-2019 13:58:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,7 +67,7 @@ tabGroups = handles.tabManager.TabGroups;
 for tgi=1:length(tabGroups)
     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
 end
-
+handles.PDV_Data = [];
 
 
 guidata(hObject, handles);
@@ -205,10 +205,68 @@ function RunSTFT_Callback(hObject, eventdata, handles)
 % hObject    handle to RunSTFT (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+a = linspace(0,1,50);
+for i = 1:length(a)
+    DisplayStatus(handles.ProgressBar,handles.InfoText,a(i));
+    drawnow;
+    pause(0.05)
+end
 
 % --- Executes on button press in RunPeakAlg.
 function RunPeakAlg_Callback(hObject, eventdata, handles)
 % hObject    handle to RunPeakAlg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in FileList.
+function FileList_Callback(hObject, eventdata, handles)
+% hObject    handle to FileList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns FileList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from FileList
+handles.selectedIndex = get(hObject,'Value');
+handles.PDV_Data.PlotData(handles.selectedIndex);
+
+% --- Executes during object creation, after setting all properties.
+function FileList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to FileList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --------------------------------------------------------------------
+function FileTab_Callback(hObject, eventdata, handles)
+% hObject    handle to FileTab (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function LoadTab_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadTab (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[fnames,fpath] = uigetfile('*Ch1.txt','multiselect','on','Select PDV files');
+if fpath ==0
+    error('LoadData:NoData',...
+        'No file input')
+end
+if ischar(fnames)
+    fnames = {fnames};
+end
+handles.fileNames = fnames; handles.filePath = fpath;
+set(handles.FileList,'Value',1); 
+set(handles.FileList,'String',fnames');
+guidata(hObject,handles)
+handles.PDV_Data = MainPDVData(handles.figure1);
+guidata(hObject,handles);
