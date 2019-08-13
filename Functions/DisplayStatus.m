@@ -23,4 +23,4 @@ else
     StatusP = Status*100;
     Text = sprintf('Progress %0.1f%%',StatusP);
 end
-    set(TextBox,'String',Text);
+    set(TextBox,'String',Text); drawnow;

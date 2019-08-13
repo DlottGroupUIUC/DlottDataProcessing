@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 13-Aug-2019 15:35:36
+% Last Modified by GUIDE v2.5 13-Aug-2019 17:17:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -283,7 +283,14 @@ function RunSTFTAll_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.selectedIndex = 1;
-for i = 1:length(handles.fileNames)-1
-    RunSTFT_Callback();
+for i = 1:length(handles.fileNames)
+    RunSTFT_Callback(hObject,eventdata,handles);
     handles.selectedIndex = i+1;
 end
+
+
+% --------------------------------------------------------------------
+function Vel_Save_Callback(hObject, eventdata, handles)
+% hObject    handle to Vel_Save (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
