@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 12-Aug-2019 13:58:00
+% Last Modified by GUIDE v2.5 13-Aug-2019 15:35:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +68,7 @@ for tgi=1:length(tabGroups)
     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
 end
 handles.PDV_Data = [];
-
+handles.selectedIndex = 0;
 
 guidata(hObject, handles);
 
@@ -205,12 +205,11 @@ function RunSTFT_Callback(hObject, eventdata, handles)
 % hObject    handle to RunSTFT (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-a = linspace(0,1,50);
-for i = 1:length(a)
-    DisplayStatus(handles.ProgressBar,handles.InfoText,a(i));
-    drawnow;
-    pause(0.05)
+if handles.selectedIndex == 0
+    LoadTab_Callback(hObject, eventdata, handles);
 end
+idx = handles.selectedIndex;
+handles.PDV_Data.Transform(idx);
 
 % --- Executes on button press in RunPeakAlg.
 function RunPeakAlg_Callback(hObject, eventdata, handles)
@@ -229,6 +228,7 @@ function FileList_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from FileList
 handles.selectedIndex = get(hObject,'Value');
 handles.PDV_Data.PlotData(handles.selectedIndex);
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function FileList_CreateFcn(hObject, eventdata, handles)
@@ -264,9 +264,26 @@ end
 if ischar(fnames)
     fnames = {fnames};
 end
+try
+    delete(handles.PDV_Data); %Delete old data
+catch
+    handles.PDV_Data = [];
+end
 handles.fileNames = fnames; handles.filePath = fpath;
 set(handles.FileList,'Value',1); 
 set(handles.FileList,'String',fnames');
 guidata(hObject,handles)
 handles.PDV_Data = MainPDVData(handles.figure1);
 guidata(hObject,handles);
+
+
+% --- Executes on button press in RunSTFTAll.
+function RunSTFTAll_Callback(hObject, eventdata, handles)
+% hObject    handle to RunSTFTAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedIndex = 1;
+for i = 1:length(handles.fileNames)-1
+    RunSTFT_Callback();
+    handles.selectedIndex = i+1;
+end

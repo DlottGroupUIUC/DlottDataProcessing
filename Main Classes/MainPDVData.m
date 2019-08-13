@@ -5,13 +5,14 @@ classdef MainPDVData < handle
         mainFig;
         ScopeTime;
         ScopeVolt;
-        Time_Params = Osc_Timing_Properties('PDVTimingParams.txt');
+        TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
         %Window_Corrections = Window_Correction_Handle('WindowCorrectionDB.txt')
         %PeakFit_Data = PeakAlgData.empty;
-        STFT_Data = STFTData.empty;
+        STFTWaveForm;
         handles; %data handle from main GUI data
         ProgBar;
-        Progress;
+        ProgText;
+        Prog;
     end
     properties(Access = protected)
     end
@@ -22,19 +23,40 @@ classdef MainPDVData < handle
             obj.handles = guidata(obj.mainFig);
             obj.ProgBar = obj.handles.ProgressBar;
             obj.ProgText = obj.handles.InfoText;
-            obj.Prog=0; Progress(); T = length(obj.handles.fileNames);
-            for i = 1:length(T)
+            obj.Prog=0; obj.ProgressBar(); T = length(obj.handles.fileNames);
+            for i = 1:T
                 [obj.ScopeTime{i},obj.ScopeVolt{i}] = obj.Readtxt(i);
-                obj.Prog = i/T; Progress();
+                obj.Prog = i/T; obj.ProgressBar();
             end
+            obj.STFTWaveForm = cell(5,1);
+            obj.FillParams();
 
         end
         function PlotData(obj,idx)
-            axes(obj.handles.WaveformAxis);
-            plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,1))
+            axes(obj.handles.WaveformAxis); hold off;
+            for i = 1:4
+                if i ==3
+                    continue
+                else
+                    plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,i)); hold on;
+                end
+            end
+            if ~isempty(obj.STFTWaveForm{idx})
+                axes(obj.handles.LineoutAxis); hold off;
+                T = obj.STFTWaveForm{idx}.VelTime;
+                Vel = obj.STFTWaveForm{idx}.Velocity;
+                for i = 1:length(Vel(1,:))
+                    plot(T,Vel(:,i)); hold on;
+                end
+            end
+        end
+        function Transform(obj,idx)
+            ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
+            obj.STFTWaveForm{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},0.25,obj.TimingParams,ProgHandles);
+            obj.PlotData(idx);
         end
     end
-    methods(Access = protected)
+    methods(Access = private)
         function [ScopeTime,ScopeVolt] = Readtxt(obj,idx)
             name = obj.handles.fileNames{idx};
             name = strsplit(name,'Ch'); name = name{1};
@@ -56,11 +78,16 @@ classdef MainPDVData < handle
                 ScopeVolt(:,i) = file(:,2);
                 clear file
             end
-            function Progress(obj)
-                Prog = obj.Prog;
-                DisplayStatus(obj.ProgBar,obj.ProgText,Prog)
-            end
-    end
+            ScopeTime = ScopeTime.*1E9;
+            
+        end
+        function ProgressBar(obj)
+            DisplayStatus(obj.ProgBar,obj.ProgText,obj.Prog)
+        end
+        function FillParams(obj)
+            set(obj.handles.Time0Text,'String',obj.TimingParams.TrigOffset);
+            set(obj.handles.Time0Text,'Enable','Off');
+        end
     end
         
 end
