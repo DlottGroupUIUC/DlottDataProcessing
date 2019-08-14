@@ -24,8 +24,7 @@ classdef STFTData
        function [VelTime,Velocity] = Transform(obj)
             SampleSpacing = obj.ScopeTime(2) - obj.ScopeTime(1);
             SampleFreq = (SampleSpacing*1E-9)^(-1);
-            TimeWindow = obj.STFTParams{2};
-            r = round(SampleFreq.*(TimeWindow*1E-9));
+            r = round(SampleFreq.*(5E-9));
             SampleRate = 0.08;
             test = round(SampleRate/SampleSpacing);
             if test ==0
@@ -56,9 +55,8 @@ classdef STFTData
             %%
             obj.Prog = 10/12; obj.ProgressBar();
             %%
-            Vcut = obj.STFTParams{1};
-            if Vcut > 0
-                filter = length(velocity_axis(velocity_axis<Vcut));
+            if obj.STFTParams{1} > 0
+                filter = length(velocity_axis(velocity_axis<obj.Vcut));
                 STFT_tot(1:filter,:)=0;
                 clear filter
             end

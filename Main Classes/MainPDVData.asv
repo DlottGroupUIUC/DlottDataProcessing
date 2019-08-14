@@ -5,10 +5,11 @@ classdef MainPDVData < handle
         mainFig;
         ScopeTime;
         ScopeVolt;
+        STFTParams; %Params for transform given and modified by main GUI
         TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
         %Window_Corrections = Window_Correction_Handle('WindowCorrectionDB.txt')
         %PeakFit_Data = PeakAlgData.empty;
-        STFTWaveForm;
+        DataStorage; %Cell array with all derived results
         handles; %data handle from main GUI data
         ProgBar;
         ProgText;
@@ -28,8 +29,9 @@ classdef MainPDVData < handle
                 [obj.ScopeTime{i},obj.ScopeVolt{i}] = obj.Readtxt(i);
                 obj.Prog = i/T; obj.ProgressBar();
             end
-            obj.STFTWaveForm = cell(T,1);
+            obj.DataStorage = cell(T,1);
             obj.FillParams();
+            obj.STFTParams = {obj.handles.};
 
         end
         function PlotData(obj,idx)
@@ -41,10 +43,10 @@ classdef MainPDVData < handle
                     plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,i)); hold on;
                 end
             end
-            if ~isempty(obj.STFTWaveForm{idx})
+            if ~isempty(obj.DataStorage{idx})
                 axes(obj.handles.LineoutAxis); hold off;
-                T = obj.STFTWaveForm{idx}.VelTime;
-                Vel = obj.STFTWaveForm{idx}.Velocity;
+                T = obj.DataStorage{idx}.VelTime;
+                Vel = obj.DataStorage{idx}.Velocity;
                 for i = 1:length(Vel(1,:))
                     plot(T,Vel(:,i)); hold on;
                 end
@@ -53,7 +55,7 @@ classdef MainPDVData < handle
         end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
-            obj.STFTWaveForm{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},0.25,obj.TimingParams,ProgHandles);
+            obj.DataStorage{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},obj.STFTParams,obj.TimingParams,ProgHandles);
             obj.PlotData(idx);
         end
         function Vel2Text()

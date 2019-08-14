@@ -8,7 +8,7 @@ classdef MainPDVData < handle
         TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
         %Window_Corrections = Window_Correction_Handle('WindowCorrectionDB.txt')
         %PeakFit_Data = PeakAlgData.empty;
-        STFTWaveForm;
+        DataStorage; %Cell array with all derived results
         handles; %data handle from main GUI data
         ProgBar;
         ProgText;
@@ -28,7 +28,7 @@ classdef MainPDVData < handle
                 [obj.ScopeTime{i},obj.ScopeVolt{i}] = obj.Readtxt(i);
                 obj.Prog = i/T; obj.ProgressBar();
             end
-            obj.STFTWaveForm = cell(T,1);
+            obj.DataStorage = cell(T,1);
             obj.FillParams();
 
         end
@@ -41,19 +41,23 @@ classdef MainPDVData < handle
                     plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,i)); hold on;
                 end
             end
-            if ~isempty(obj.STFTWaveForm{idx})
+            if ~isempty(obj.DataStorage{idx})
                 axes(obj.handles.LineoutAxis); hold off;
-                T = obj.STFTWaveForm{idx}.VelTime;
-                Vel = obj.STFTWaveForm{idx}.Velocity;
+                T = obj.DataStorage{idx}.VelTime;
+                Vel = obj.DataStorage{idx}.Velocity;
                 for i = 1:length(Vel(1,:))
                     plot(T,Vel(:,i)); hold on;
                 end
             end
+            %%Set up axis limits based on user input, if applicable
+            xi = str2double(get(obj.handles.xiEdit,'String')); xf = str2double(get(obj.handles.xfEdit,'String'));
+            xlim([xi,xf])
             linkaxes([obj.handles.WaveformAxis,obj.handles.LineoutAxis],'x');
         end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
-            obj.STFTWaveForm{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},0.25,obj.TimingParams,ProgHandles);
+            STFTParams = {str2double(get(obj.handles.CutoffEdit,'String')),str2double(get(obj.handles.TransWindowEdit,'String'))};
+            obj.DataStorage{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},STFTParams,obj.TimingParams,ProgHandles);
             obj.PlotData(idx);
         end
         function Vel2Text()
