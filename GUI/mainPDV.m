@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 14-Aug-2019 18:58:15
+% Last Modified by GUIDE v2.5 15-Aug-2019 13:01:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -210,13 +210,21 @@ if handles.selectedIndex == 0
 end
 idx = handles.selectedIndex;
 handles.PDV_Data.Transform(idx);
+set(handles.Vel_Save,'Enable','On')
+guidata(hObject,handles);
 
 % --- Executes on button press in RunPeakAlg.
 function RunPeakAlg_Callback(hObject, eventdata, handles)
 % hObject    handle to RunPeakAlg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+if handles.selectedIndex == 0
+    LoadTab_Callback(hObject, eventdata, handles);
+end
+idx = handles.selectedIndex;
+handles.PDV_Data.PeakAlg(idx);
+set(handles.Vel_Save,'Enable','On')
+guidata(hObject,handles);
 
 % --- Executes on selection change in FileList.
 function FileList_Callback(hObject, eventdata, handles)
@@ -272,6 +280,7 @@ end
 handles.fileNames = fnames; handles.filePath = fpath;
 set(handles.FileList,'Value',1); 
 set(handles.FileList,'String',fnames');
+handles.selectedIndex = 1;
 guidata(hObject,handles)
 handles.PDV_Data = MainPDVData(handles.figure1);
 guidata(hObject,handles);
@@ -289,11 +298,15 @@ for i = 1:length(handles.fileNames)
 end
 
 
+
 % --------------------------------------------------------------------
 function Vel_Save_Callback(hObject, eventdata, handles)
 % hObject    handle to Vel_Save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if ~isempty(handles.PDV_Data)
+    handles.PDV_Data.Vel2Text();
+end
 
 
 
@@ -349,4 +362,16 @@ function UpdatePlotBtn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if ~isempty(handles.PDV_Data)
     handles.PDV_Data.PlotData(handles.selectedIndex)
+end
+
+
+% --- Executes on button press in RunPeakAlgAll.
+function RunPeakAlgAll_Callback(hObject, eventdata, handles)
+% hObject    handle to RunPeakAlgAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedIndex = 1;
+for i = 1:length(handles.fileNames)
+    RunPeakAlg_Callback(hObject,eventdata,handles);
+    handles.selectedIndex = i+1;
 end

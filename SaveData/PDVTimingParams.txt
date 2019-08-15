@@ -2,4 +2,4 @@ Data Timing Parameters: Last Updated (YYY/MM/DD): 2019/08/09
 Update Initials: LS
 PDV Time Delay Specifies Time BTWN 90% Rise of Trig and PDV Ch1 Rise above 5 RMS on 10 nm Chrome Window.
 Current Timing: 36.2 ns
-PDV Channels in Use (comma separated): 1,2,3
+PDV Channels in Use (comma separated): 1,2,4
