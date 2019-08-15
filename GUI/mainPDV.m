@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 14-Aug-2019 17:25:48
+% Last Modified by GUIDE v2.5 14-Aug-2019 18:58:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -339,4 +339,14 @@ function xiEdit_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in UpdatePlotBtn.
+function UpdatePlotBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to UpdatePlotBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if ~isempty(handles.PDV_Data)
+    handles.PDV_Data.PlotData(handles.selectedIndex)
 end
