@@ -110,12 +110,12 @@ classdef MainPDVData < handle
                 fclose(fid);
                 %now insert data vector
                 dlmwrite(fullfile(save_path,save),full_save,'-append','delimiter','\t');
-                cd
+                cd(work_dir);
                 end
         end
     end
     methods(Access = private)
-        function [ScopeTime,ScopeVolt] = Readtxt(obj,idx)
+        function [ScopeTime,ScopeVolt,Toffset] = Readtxt(obj,idx)
             name = obj.handles.fileNames{idx};
             name = strsplit(name,'Ch'); name = name{1};
             for i = 1:4
@@ -136,8 +136,28 @@ classdef MainPDVData < handle
                 ScopeVolt(:,i) = file(:,2);
                 clear file
             end
-            ScopeTime = ScopeTime.*1E9;
-            
+            s = 0;
+            for j=1:(0.05*length(ScopeTime))
+                s=s+ScopeVolt(j,i)^2;
+            end
+            rMS(i)=sqrt(s/(0.05*length(ScopeTime)));
+            i = 1;
+            try
+            while (abs(ScopeVolt(i,1)) < 5*rMS(1) || abs(ScopeVolt(i,2)) < 5*rMS(2) && i < length(ScopeVolt(:,1)))
+                i = i+1;
+            end
+            catch
+                i = 1000;
+            end
+            [maximum, maximum_index] = max(ScopeVolt(:,3));
+            time_vector = ScopeTime(1:maximum_index);
+            index90 = length(time_vector(time_vector<=maximum*0.9));
+            time90 = ScopeTime(index90).*1e9;
+            scope_offset = obj.TimingParams.TrigOffset;
+            time_offset = -time90 + scope_offset;
+            ScopeTime = ScopeTime.*1e9 + time_offset;
+            Toffset = time_offset;
+
         end
         function ProgressBar(obj)
             DisplayStatus(obj.ProgBar,obj.ProgText,obj.Prog)

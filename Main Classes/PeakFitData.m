@@ -26,7 +26,8 @@ classdef PeakFitData
    methods(Access = private)
        function [VelTime,Velocity,PeakVolt] = PeakDet4(obj)
            k = 1;
-           x0 = 5000;
+           x0 = obj.findT0(obj.ScopeTime,obj.ScopeVolt);
+           x0 = x0-2;
            ChList = obj.TParams.ChList;
            for j = 1:length(ChList)
                  i = ChList(j);
@@ -72,6 +73,7 @@ classdef PeakFitData
             
                
        end
+       
    end
    methods(Static)
        function [rMS] = fRMS(time,rVolts1)
@@ -278,6 +280,23 @@ classdef PeakFitData
                 end
               end
             end
+       end
+       function [t0] = findT0(ScopeTime,ScopeVolt)
+            s = 0;
+            i = 1;
+            for j=1:(0.05*length(ScopeTime))
+                s=s+ScopeVolt(j,i)^2;
+            end
+            rMS(i)=sqrt(s/(0.05*length(ScopeTime)));
+            i = 1;
+            try
+            while (abs(ScopeVolt(i,1)) < 5*rMS(1))
+                i = i+1;
+            end
+            catch
+                i = 1000;
+            end
+            t0 = i;
        end
    end
 end

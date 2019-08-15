@@ -6,6 +6,7 @@ classdef MainPDVData < handle
         ScopeTime;
         ScopeVolt;
         TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
+        Toffset
         %Window_Corrections = Window_Correction_Handle('WindowCorrectionDB.txt')
         %PeakFit_Data = PeakAlgData.empty;
         DataStorage; %Cell array with all derived results
@@ -25,7 +26,7 @@ classdef MainPDVData < handle
             obj.ProgText = obj.handles.InfoText;
             obj.Prog=0; obj.ProgressBar(); T = length(obj.handles.fileNames);
             for i = 1:T
-                [obj.ScopeTime{i},obj.ScopeVolt{i}] = obj.Readtxt(i);
+                [obj.ScopeTime{i},obj.ScopeVolt{i},obj.Toffset{i}] = obj.Readtxt(i);
                 obj.Prog = i/T; obj.ProgressBar();
             end
             obj.DataStorage = cell(T,1);
@@ -63,7 +64,7 @@ classdef MainPDVData < handle
         end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
-            STFTParams = {str2double(get(obj.handles.CutoffEdit,'String')),str2double(get(obj.handles.TransWindowEdit,'String'))};
+            STFTParams = {str2double(get(obj.handles.CutoffEdit,'String')),str2double(get(obj.handles.TransWindowEdit,'String')),obj.Toffset{idx}};
             obj.DataStorage{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},STFTParams,obj.TimingParams,ProgHandles);
             obj.PlotData(idx);
         end
@@ -115,7 +116,7 @@ classdef MainPDVData < handle
         end
     end
     methods(Access = private)
-        function [ScopeTime,ScopeVolt] = Readtxt(obj,idx)
+        function [ScopeTime,ScopeVolt,Toffset] = Readtxt(obj,idx)
             name = obj.handles.fileNames{idx};
             name = strsplit(name,'Ch'); name = name{1};
             for i = 1:4
@@ -136,8 +137,15 @@ classdef MainPDVData < handle
                 ScopeVolt(:,i) = file(:,2);
                 clear file
             end
-            ScopeTime = ScopeTime.*1E9;
-            
+            [maximum, maximum_index] = max(ScopeVolt(:,3));
+            time_vector = ScopeTime(1:maximum_index);
+            index90 = length(time_vector(time_vector<=maximum*0.9));
+            time90 = ScopeTime(index90).*1e9;
+            scope_offset = obj.TimingParams.TrigOffset;
+            time_offset = -time90 + scope_offset;
+            ScopeTime = ScopeTime.*1e9 + time_offset;
+            Toffset = time_offset;
+
         end
         function ProgressBar(obj)
             DisplayStatus(obj.ProgBar,obj.ProgText,obj.Prog)

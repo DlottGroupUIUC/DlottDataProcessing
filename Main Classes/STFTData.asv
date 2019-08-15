@@ -32,11 +32,12 @@ classdef STFTData
                 test = 1;
             end
             obj.Prog = 0;
+            cAmp = obj.Detrend();
             for i = 1:4
                 if i==3
                     continue
                 end
-                [STFT,f,t] = spectrogram(obj.ScopeVolt(:,i),hamming(r),r-test,10*r,SampleFreq);
+                [STFT,f,t] = spectrogram(cAmp(:,i),hamming(r),r-test,10*r,SampleFreq);
                 %%
                 obj.Prog = (2*i)/12;
                 obj.ProgressBar()
@@ -52,7 +53,7 @@ classdef STFTData
             %%
             STFT_tot = STFT_tot./3;
             velocity_axis = f.*0.775./1e9;
-            VelTime = (t*1e9)';
+            VelTime = (t*1e9)'+;
             %%
             obj.Prog = 10/12; obj.ProgressBar();
             %%
@@ -80,28 +81,7 @@ classdef STFTData
             end
             Velocity = velocity_lineout_fit;
             obj.Prog = 1; obj.ProgressBar();
-            %{
-            displacement = [];
-            for i = 1:length(lineout_time)
-                if lineout_time(i) < handles.time{n}(handles.t0{n})
-                    displacement(i) = 0;
-                elseif lineout_time(i) < handles.time{n}(minimum_index)&& lineout_time(i)>handles.time{n}(handles.t0{n})
-                    displacement(i) = displacement(i-1)+trapz(lineout_time(i-1:i),velocity_lineout_fit(i-1:i));
-                elseif lineout_time(i) > handles.time{n}(minimum_index)
-                    displacement(i) = displacement(i-1)-trapz(lineout_time(i-1:i),velocity_lineout_fit(i-1:i));
-                end
-            end
-            %}
-            %{
-            for i=1:length(lineout_time)
-                if i==1
-                    velocity_lineout_fit(i) = velocity_lineout_fit(i);
-                elseif lineout_time(i)<time(minimum_index)
-                    velocity_lineout_fit(i) = velocity_lineout_fit(i);
-                else
-                    velocity_lineout_fit(i) = -1*velocity_lineout_fit(i);
-                end
-            %}
+            
        end
        function ProgressBar(obj)
             DisplayStatus(obj.ProgHandles{1},obj.ProgHandles{2},obj.Prog);
@@ -116,9 +96,10 @@ classdef STFTData
                         cAmp(:,i) = obj.ScopeVolt(:,i);
                         continue
                     end
-                    fitvals = polyfit(obj.ScopeTime(t0:end),cAmp(t0:end,i),1);
+                    t0 = 1; %FOR NOW
+                    fitvals = polyfit(obj.ScopeTime(t0:end),obj.ScopeVolt(t0:end,i),1);
                     meanvals = polyval(fitvals,obj.ScopeTime);
-                    camp(:,i) = (amp(:,i)-meanvals)./A(i);
+                    cAmp(:,i) = (obj.ScopeVolt(:,i)-meanvals)./A(i);
                 end
            end
        end

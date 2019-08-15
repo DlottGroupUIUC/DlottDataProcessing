@@ -53,7 +53,7 @@ classdef STFTData
             %%
             STFT_tot = STFT_tot./3;
             velocity_axis = f.*0.775./1e9;
-            VelTime = (t*1e9)';
+            VelTime = (t.*1e9)'+obj.STFTParams{3};
             %%
             obj.Prog = 10/12; obj.ProgressBar();
             %%
