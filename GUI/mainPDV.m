@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 15-Aug-2019 13:01:44
+% Last Modified by GUIDE v2.5 19-Aug-2019 11:57:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -374,4 +374,32 @@ handles.selectedIndex = 1;
 for i = 1:length(handles.fileNames)
     RunPeakAlg_Callback(hObject,eventdata,handles);
     handles.selectedIndex = i+1;
+end
+
+
+% --------------------------------------------------------------------
+function mSave_Callback(hObject, eventdata, handles)
+% hObject    handle to mSave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+curr_dir = pwd;
+cd(handles.filePath);
+[mName,mPath] = uiputfile('*.mat','Save Session');
+mFile = fullfile(mPath,mName);
+savefig(string(mFile));
+cd(curr_dir);
+
+% --------------------------------------------------------------------
+function mLoad_Callback(hObject, eventdata, handles)
+% hObject    handle to mLoad (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[mName,mPath] = uigetfile('*.mat','Load Previous Session');
+mFile = fullfile(mPath,mName);
+if ~strcmp(string(mPath),'0')
+    if exist(handles.PDV_Data)
+    end
+    delete(handles.figure1);
+    load(mFile,'-mat');
+    disp(handles.fileNames);
 end
