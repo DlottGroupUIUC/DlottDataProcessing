@@ -22,7 +22,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 19-Aug-2019 13:31:09
+% Last Modified by GUIDE v2.5 20-Aug-2019 12:11:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -62,7 +62,7 @@ handles.logo.HandleVisibility='off';
 handles.logo.Visible='off';
 
 handles.tabManager = TabManager( hObject );
-
+handles.selectedIndex = 1;
 % Set-up a selection changed function on the create tab groups
 tabGroups = handles.tabManager.TabGroups;
 for tgi=1:length(tabGroups)
@@ -96,6 +96,10 @@ function FileList_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FileList contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileList
+handles.selectedIndex = get(hObject,'Value');
+guidata(hObject,handles);
+handles.MainData.RadiancePlot(handles.selectedIndex)
+guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -123,7 +127,7 @@ function LoadTab_Callback(hObject, eventdata, handles)
 % hObject    handle to LoadTab (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[fNames,fPath] = uigetfile('*.tdms','Load PMT Files');
+[fNames,fPath] = uigetfile('*.tdms','Load PMT Files','multiselect','on');
 if strcmp(string(fPath),'0')
     error('LoadData:NoData',...
         'No file input')
@@ -139,6 +143,8 @@ catch
 end
 %}
 handles.PMTfileNames = fNames; handles.PMTfilePath = fPath;
+guidata(hObject,handles);
+handles.MainData = MainPMTData(handles.PMTFigure);
 set(handles.FileList,'Value',1); 
 set(handles.FileList,'String',fNames');
 handles.selectedIndex = 1;
@@ -248,7 +254,8 @@ function runBinning_Callback(hObject, eventdata, handles)
 % hObject    handle to runBinning (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+handles.MainData.BinPMTData(handles.selectedIndex);
+guidata(hObject,handles);
 
 % --- Executes on button press in radiobutton1.
 function radiobutton1_Callback(hObject, eventdata, handles)
@@ -328,3 +335,54 @@ function binAll_Callback(hObject, eventdata, handles)
 % hObject    handle to binAll (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    for i = 1:length(handles.PMTfileNames)
+        handles.selectedIndex = i;guidata(hObject,handles);
+        runBinning_Callback(hObject,eventdata,handles);
+
+    end
+    guidata(hObject,handles);
+
+
+function delayTarget_Callback(hObject, eventdata, handles)
+% hObject    handle to delayTarget (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of delayTarget as text
+%        str2double(get(hObject,'String')) returns contents of delayTarget as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function delayTarget_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to delayTarget (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ThreshEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to ThreshEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ThreshEdit as text
+%        str2double(get(hObject,'String')) returns contents of ThreshEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ThreshEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ThreshEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

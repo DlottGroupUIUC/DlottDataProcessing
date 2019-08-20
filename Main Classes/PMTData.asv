@@ -1,0 +1,44 @@
+classdef PMTData < handle
+    %PMT data storage structure
+    properties(Access = public)
+        Time
+        Rad
+        Temp
+        Phi
+    end
+    properties(Access = private)
+        
+    end
+    methods
+        function obj = PMTData(fName,fPath,Time,Volt)
+            obj.fName = fName;
+            obj.fPath = fPath;
+            obj.Time = Time;
+            obj.Volt = Volt;
+        end
+        
+    end
+    methods(Static)
+        function [EmissionFilterLibrary,CalFilterLibrary] = ReadFilterData(txt)
+            fileID = fopen(txt);
+            textscan(fileID,'%s',19);
+            fspec = '[%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f]';
+            eFilt = ones(32,8);
+            cFilt = ones(32,5);
+            for i = 1:8
+                textscan(fileID,'%f',1);
+                tempMat = textscan(fileID,fspec,1);
+                tempMat = cell2mat(tempMat);
+                eFilt(:,i) = tempMat';
+            end
+
+            textscan(fileID,'%s',9);
+            for i = 1:5
+                textscan(fileID,'%f',1);
+                tempMat = textscan(fileID,fspec,1);
+                tempMat = cell2mat(tempMat);
+                cFilt(:,i) = tempMat';
+            end
+        end
+    end
+end

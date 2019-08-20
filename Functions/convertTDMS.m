@@ -310,12 +310,13 @@ for fnum=1:numel(infilename)
     FileNameShort=sprintf('%s%s',name,ext);
     FileNameNoExt=name;
     FileFolder=pathstr;
-    
+    %{
     if fnum==1
         fprintf('\n\n')
     end
-    fprintf('Converting ''%s''...',FileNameShort)
     
+    fprintf('Converting ''%s''...',FileNameShort)
+    %}
     fid=fopen(FileNameLong);
     
     if fid==-1
@@ -351,6 +352,7 @@ for fnum=1:numel(infilename)
     TempChanNames={ConvertedData(fnum).Data.MeasuredData.Name};
     TempChanNames(strcmpi(TempChanNames,'Root'))=[];
     ChanNames(fnum)={sort(setdiff(TempChanNames',CurrGroupNames))};
+    %{
     if SaveConvertedFile
         MATFileNameShort=sprintf('%s.mat',FileNameNoExt);
         MATFileNameLong=fullfile(FileFolder,MATFileNameShort);
@@ -364,6 +366,7 @@ for fnum=1:numel(infilename)
     else
         fprintf('\n\nConversion complete.\n\n')
     end
+    %}
 end
 ci=channelinfo;
 end
