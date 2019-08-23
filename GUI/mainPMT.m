@@ -22,7 +22,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 21-Aug-2019 19:21:47
+% Last Modified by GUIDE v2.5 22-Aug-2019 10:35:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,7 +98,7 @@ function FileList_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from FileList
 handles.selectedIndex = get(hObject,'Value');
 guidata(hObject,handles);
-handles.MainData.RadiancePlot(handles.selectedIndex)
+handles.MainData.RadianceSemiLogPlot(handles.selectedIndex)
 guidata(hObject,handles);
 
 
@@ -338,7 +338,6 @@ function binAll_Callback(hObject, eventdata, handles)
     for i = 1:length(handles.PMTfileNames)
         handles.selectedIndex = i;guidata(hObject,handles);
         runBinning_Callback(hObject,eventdata,handles);
-
     end
     guidata(hObject,handles);
 
@@ -411,19 +410,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in listbox4.
-function listbox4_Callback(hObject, eventdata, handles)
-% hObject    handle to listbox4 (see GCBO)
+% --- Executes on selection change in expFiltList.
+function expFiltList_Callback(hObject, eventdata, handles)
+% hObject    handle to expFiltList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns listbox4 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from listbox4
+% Hints: contents = cellstr(get(hObject,'String')) returns expFiltList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from expFiltList
 
 
 % --- Executes during object creation, after setting all properties.
-function listbox4_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to listbox4 (see GCBO)
+function expFiltList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to expFiltList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
