@@ -37,6 +37,24 @@ classdef MainPMTData < handle
             %grab parameters to make individual datafile measurement
             cFiltidx = get(obj.handles.calFiltList,'Value');
             eFiltidx = get(obj.handles.expFiltList,'Value');
+            %% Make a structure of the file data this instance of PMT (i.e this PMT file) will be using for conversion
+            %%File data is used in the PMTData program, and has the
+            %%following fields:
+            % Data: (Measured Data Array From tdms conversion) - Note to
+            %   self, should probably just put this in the front end of the
+            %   object instance.
+            % eFilt: desired emission filter selection based on gui input
+            % cFilt: desired calibration filter
+            % binStart,binEnd,Thresh: start decade, end decade and theshold
+            %       for peak/rise time determination
+            % UnitConv: Normalizing to calibration source, in this case the
+            %       integrating sphere
+            % Target: Target time to set feature at
+            % binBool: Determines whether or not to bin (not yet
+            % implemented)
+            % This data is fed to DataStorage which provides an instance of
+            % a datafile, in this case a PMT file where the only public variables are binData 
+            % (binned time and binned spec rad),binRad,binTemp and binPhi.
             FileData = struct;
             FileData.Data = rawFile.Data.MeasuredData;
             FileData.eFilt = obj.eFilter(:,eFiltidx);FileData.cFilt = obj.cFilter(:,cFiltidx);
@@ -44,6 +62,9 @@ classdef MainPMTData < handle
             FileData.binStart = str2double(get(obj.handles.binStart,'String'));
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             FileData.UnitConv = obj.UnitConv;
+            FileData.Target = str2double(get(obj.handles.delayTarget,'String'));
+            FileData.Thresh = str2double(get(obj.handles.ThreshEdit,'String'));
+            FileData.binBool = ~(str2double(get(obj.handles.binRes,'String'))==0);
             obj.DataStorage{idx} = PMTData(FileData);
             obj.RadianceSemiLogPlot(idx);
         end
@@ -51,14 +72,14 @@ classdef MainPMTData < handle
         function RadiancePlot(obj,idx)
             axes(obj.handles.RadAxis);
             time = obj.DataStorage{idx}.BinData(:,1);
-            volt = obj.DataStorage{idx}.BinData(:,3);
-            plot(time,volt); xlim([0,5E-7]);
+            Radiance = obj.DataStorage{idx}.binRad;
+            plot(time,Radiance); xlim([0,5E-7]);
         end
         function RadianceSemiLogPlot(obj,idx)
             axes(obj.handles.RadAxis);
             time = obj.DataStorage{idx}.BinData(:,1);
-            volt = obj.DataStorage{idx}.BinData(:,3);
-            semilogx(time,volt); xlim([1E-9,5E-7]);
+            Radiance = obj.DataStorage{idx}.binRad;
+            semilogx(time,Radiance); xlim([1E-9,5E-7]);
         end
     end
     methods(Access = private)

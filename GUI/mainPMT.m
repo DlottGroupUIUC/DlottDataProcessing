@@ -22,7 +22,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 22-Aug-2019 10:35:41
+% Last Modified by GUIDE v2.5 23-Aug-2019 11:03:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -257,31 +257,34 @@ function runBinning_Callback(hObject, eventdata, handles)
 handles.MainData.BinPMTData(handles.selectedIndex);
 guidata(hObject,handles);
 
-% --- Executes on button press in radiobutton1.
-function radiobutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton1 (see GCBO)
+% --- Executes on button press in peakButton.
+function peakButton_Callback(hObject, eventdata, handles)
+% hObject    handle to peakButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+set(handles.riseButton,'Value',0);
+set(handles.PDVdelayButton,'Value',0);
+% Hint: get(hObject,'Value') returns toggle state of peakButton
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton1
 
-
-% --- Executes on button press in radiobutton2.
-function radiobutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton2 (see GCBO)
+% --- Executes on button press in riseButton.
+function riseButton_Callback(hObject, eventdata, handles)
+% hObject    handle to riseButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+set(handles.peakButton,'Value',0);
+set(handles.PDVdelayButton,'Value',0);
+% Hint: get(hObject,'Value') returns toggle state of riseButton
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton2
 
-
-% --- Executes on button press in radiobutton3.
-function radiobutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton3 (see GCBO)
+% --- Executes on button press in PDVdelayButton.
+function PDVdelayButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PDVdelayButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton3
+set(handles.peakButton,'Value',0);
+set(handles.riseButton,'Value',0);
+% Hint: get(hObject,'Value') returns toggle state of PDVdelayButton
 
 
 

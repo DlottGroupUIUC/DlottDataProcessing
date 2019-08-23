@@ -2,11 +2,13 @@ classdef PMTData < handle
     %PMT data storage structure
     properties(Access = public)
         BinData
+        binRad
     end
     properties(Access = private)
         DataArray
         FileData
         Time
+        Delay
     end
     methods
         function obj = PMTData(FileData)
@@ -16,7 +18,19 @@ classdef PMTData < handle
             obj.TDMSshort()
         end
     end
-methods(Access = private)       
+methods(Access = private) 
+            function [delay] = FindPeakDelay(obj)
+                %Function finds when delay should be applied, based on Ch. 20
+                Volt = obj.DataArray(:,15);
+                Volt = Volt(obj.Time<2E-6);
+                Volt = Volt.*-1;
+                Time = obj.Time(obj.Time<2E-6);
+                rms = sqrt(mean(Volt(1:250).^2));
+                [~,locs] = findpeaks(Volt,'MinPeakHeight',obj.FileData.Thresh*rms,...
+                    'MinPeakDistance',50E-9);
+                [~, maxLoc] = max(Volt(locs(1:5)));
+                delay = Time(locs(maxLoc))-obj.FileData.Target*1E-9;
+            end
         function TDMSshort( obj )
             %Isolate time and flip voltage
             obj.Time = obj.DataArray(:,5);
@@ -35,11 +49,11 @@ methods(Access = private)
             tempcell{1,1}=[zeros(1,4);tempcell{1,1}];
             tempcell{1,1}(end,:)=[];
             cTime=[tempcell{1,1} tempcell{1,2}];
-
+            obj.Delay = obj.FindPeakDelay();
             %Apply delays
             %Apply delay later
             %time=time-delay;
-
+            obj.Time = obj.Time-obj.Delay;
             %Remove negative data
             vector=cTime(obj.Time>0,:);
             TimeVector=obj.Time(obj.Time>0);
@@ -106,6 +120,9 @@ methods(Access = private)
                     %Condense output vectors
                 obj.BinData(:,1)=binTime;
                 obj.BinData(:,[2:33])=binSpecRad;
+                %Total Radiance
+                obj.binRad = sum(binSpecRad,2)*1e-9;
+                
         end
 end
 

@@ -386,7 +386,7 @@ curr_dir = pwd;
 cd(handles.filePath);
 [mName,mPath] = uiputfile('*.mat','Save Session');
 mFile = fullfile(mPath,mName);
-savefig(string(mFile));
+save(string(mFile));
 cd(curr_dir);
 
 % --------------------------------------------------------------------
