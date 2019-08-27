@@ -20,7 +20,7 @@ classdef PeakFitData
            obj.TParams = TParams;
            obj.ProgHandles = ProgHandles;
            obj.Thresh = Thresh;
-           [obj.VelTime,obj.Velocity,obj.PeakVolt] = obj.PeakDet4();
+           [obj.VelTime,obj.Velocity,obj.PeakVolt] = obj.PeakDet5();
        end
    end
    methods(Access = private)
@@ -75,8 +75,8 @@ classdef PeakFitData
        end
        function [T,V,pV] = PeakDet5(obj)
            %divide into blocks of 500
-           Volt = obj.ScopeVolt(:,1); Volt = Volt(4000:end); Nv = length(Volt);
-           Ns = 100;
+           Volt = obj.ScopeVolt(:,1); Volt = Volt(8200:end); Nv = length(Volt);
+           Ns = 300;
            for seg = 1:Nv/Ns
                sp = (seg-1)*Ns+1;
                if seg*Ns > Nv
