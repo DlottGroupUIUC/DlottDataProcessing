@@ -4,12 +4,11 @@ classdef PMTData < handle
         BinData
         binRad
         binGray;
-        Tolerance = 90;
     end
     properties(Access = private)
         DataArray
         FileData
-        Delay
+        Tolerance = 95 % Percentage, determines
         Wavelength=[444.690000000000,454.630000000000,464.250000000000,473.440000000000,483.560000000000,492.750000000000,500.810000000000,...
             509.500000000000,518.880000000000,529,539.940000000000,551.880000000000,561.500000000000,568.380000000000,575.560000000000,...
             583.130000000000,591.060000000000,599.440000000000,608.250000000000,617.500000000000,627.310000000000,637.750000000000,648.810000000000,...
@@ -39,13 +38,18 @@ methods(Access = private)
             filter=obj.FileData.cFilt'/obj.FileData.eFilt';
 
             %Correct for the 1 data point offset of card 1
-            tempcell=mat2cell(Volt_baseline_corrected,length(Time),[4 28]);
+            tempcell=mat2cell(Volt_baseline_corrected,length(obj.Time),[4 28]);
             tempcell{1,1}=[zeros(1,4);tempcell{1,1}];
             tempcell{1,1}(end,:)=[];
             cTime=[tempcell{1,1} tempcell{1,2}];
+            %Apply delays
+            %Apply delay later
+            %time=time-delay;
+            obj.Time = obj.Time-obj.Delay;
             %Remove negative data
-            vector=cTime(Time>0,:);
-            TimeVector=Time(Time>0);
+            vector=cTime(obj.Time>0,:);
+            TimeVector=obj.Time(obj.Time>0);
+            
             %Begin data binning at 10 ns
             binSpecRad=vector(find(TimeVector>0,1,'first'):find(TimeVector<1*10^obj.FileData.binStart,1,'last'),:);
             binTime=TimeVector(find(TimeVector>0,1,'first'):find(TimeVector<1*10^obj.FileData.binStart,1,'last'));
@@ -110,9 +114,6 @@ methods(Access = private)
                 obj.BinData(:,[2:33])=binSpecRad;
                 %Total Radiance
                 obj.binRad = sum(binSpecRad,2)*1e-9;
-                %Once binning is done clear full vectors from memory. It is
-                %no longer needed
-                obj.FileData.Time = [];obj.FileData.Volt = [];
                 
         end
         function grayData = TempFit(obj)

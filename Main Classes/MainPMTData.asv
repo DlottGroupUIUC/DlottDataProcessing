@@ -98,7 +98,7 @@ classdef MainPMTData < handle
                 TempError = obj.DataStorage{idx}.binGray.TempError;
                 time = obj.DataStorage{idx}.BinData(:,1);
                 semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
-                xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
+                xlim([1E-9,2E-6]); ylim([0,]
             end
     end
     methods(Access = private)
