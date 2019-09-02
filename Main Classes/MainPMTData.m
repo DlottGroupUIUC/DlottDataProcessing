@@ -33,6 +33,7 @@ classdef MainPMTData < handle
             obj.DataStorage{idx}.Tolerance = str2double(get(obj.handles.ConfBound,'String'));
             obj.DataStorage{idx}.GrayBodyFit();
             obj.TempPlot(idx);
+            obj.EmissivityPlot(idx);
         end
         function BinPMTData(obj,idx)
             if isempty(obj.UnitConv)
@@ -91,6 +92,8 @@ classdef MainPMTData < handle
             time = obj.DataStorage{idx}.BinData(:,1);
             Radiance = obj.DataStorage{idx}.binRad;
             semilogx(time,Radiance); xlim([1E-9,5E-7]);
+            text = sprintf('Radiance Plot of %s',obj.handles.PMTfileNames{idx});
+            title(text);
         end
             function TempPlot(obj,idx)
                 axes(obj.handles.TempAxis); hold off;
@@ -99,7 +102,20 @@ classdef MainPMTData < handle
                 time = obj.DataStorage{idx}.BinData(:,1);
                 semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
                 xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
+                text = sprintf('Temp Plot of %s',obj.handles.PMTfileNames{idx});
+                title(text);
             end
+            function EmissivityPlot(obj,idx)
+                axes(obj.handles.EmissivityAxis); hold off;
+                Emissivity = obj.DataStorage{idx}.binGray.Emissivity;
+                EmissivityError = obj.DataStorage{idx}.binGray.EmissivityError;
+                time = obj.DataStorage{idx}.BinData(:,1);
+                semilogx(time,Emissivity,'o'); hold on; errorbar(time,Emissivity,EmissivityError,'LineStyle','none','Color','b');
+                xlim([1E-9,2E-6]); ylim([0,max(Emissivity)+0.1]);
+                text = sprintf('Emissivity Plot of %s',obj.handles.PMTfileNames{idx});
+                title(text);
+            end
+                
     end
     methods(Access = private)
         function Calibrate(obj)

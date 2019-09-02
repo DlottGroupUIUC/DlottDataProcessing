@@ -22,7 +22,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 30-Aug-2019 20:03:53
+% Last Modified by GUIDE v2.5 02-Sep-2019 13:28:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -96,9 +96,15 @@ function FileList_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FileList contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileList
-handles.selectedIndex = get(hObject,'Value');
+handles.selectedFiles = get(hObject,'Value');
+handles.selectedIndex = min(handles.selectedFiles);
 guidata(hObject,handles);
-handles.MainData.RadianceSemiLogPlot(handles.selectedIndex)
+handles.MainData.RadianceSemiLogPlot(handles.selectedIndex);
+try
+handles.MainData.TempPlot(handles.selectedIndex);
+handles.MainData.EmissivityPlot(handles.selectedIndex);
+catch
+end
 guidata(hObject,handles);
 
 
@@ -147,7 +153,7 @@ guidata(hObject,handles);
 handles.MainData = MainPMTData(handles.PMTFigure);
 set(handles.FileList,'Value',1); 
 set(handles.FileList,'String',fNames');
-handles.selectedIndex = 1;
+handles.selectedFiles = 1;
 set(handles.runGray,'Enable','off');
 set(handles.runTempAll,'Enable','off');
 guidata(hObject,handles);
@@ -256,7 +262,13 @@ function runBinning_Callback(hObject, eventdata, handles)
 % hObject    handle to runBinning (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.MainData.BinPMTData(handles.selectedIndex);
+try handles.MainData;
+catch
+    LoadTab_Callback(hObject,eventdata,handles);
+end
+for idx = handles.selectedFiles(1:end)
+    handles.MainData.BinPMTData(idx);
+end
 guidata(hObject,handles);
 
 % --- Executes on button press in peakButton.
@@ -340,8 +352,12 @@ function binAll_Callback(hObject, eventdata, handles)
 % hObject    handle to binAll (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    try handles.MainData;
+    catch
+        LoadTab_Callback(hObject,eventdata,handles);
+    end
     for i = 1:length(handles.PMTfileNames)
-        handles.selectedIndex = i;guidata(hObject,handles);
+        handles.selectedFiles = i;guidata(hObject,handles);
         runBinning_Callback(hObject,eventdata,handles);
     end
     guidata(hObject,handles);
@@ -443,8 +459,10 @@ function runGray_Callback(hObject, eventdata, handles)
 % hObject    handle to runGray (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-idx = get(handles.FileList,'Value');
-handles.MainData.calcTemp(idx)
+%idx = handles.selectedIndex;
+for idx = handles.selectedFiles(1:end)
+    handles.MainData.calcTemp(idx)
+end
 
 
 
@@ -473,5 +491,24 @@ end
 % --- Executes on button press in runTempAll.
 function runTempAll_Callback(hObject, eventdata, handles)
 % hObject    handle to runTempAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    for i = 1:length(handles.PMTfileNames)
+        handles.selectedFiles = i;guidata(hObject,handles);
+        runGray_Callback(hObject,eventdata,handles);
+    end
+    guidata(hObject,handles);
+
+
+% --------------------------------------------------------------------
+function settings_tag_Callback(hObject, eventdata, handles)
+% hObject    handle to settings_tag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function channelList_Callback(hObject, eventdata, handles)
+% hObject    handle to channelList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
