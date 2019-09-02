@@ -99,8 +99,8 @@ function FileList_Callback(hObject, eventdata, handles)
 handles.selectedFiles = get(hObject,'Value');
 handles.selectedIndex = min(handles.selectedFiles);
 guidata(hObject,handles);
-handles.MainData.RadianceSemiLogPlot(handles.selectedIndex);
 try
+handles.MainData.RadianceSemiLogPlot(handles.selectedIndex);
 handles.MainData.TempPlot(handles.selectedIndex);
 handles.MainData.EmissivityPlot(handles.selectedIndex);
 catch
