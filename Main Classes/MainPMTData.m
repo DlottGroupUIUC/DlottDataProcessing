@@ -115,7 +115,29 @@ classdef MainPMTData < handle
                 text = sprintf('Emissivity Plot of %s',obj.handles.PMTfileNames{idx});
                 title(text);
             end
-                
+            function SaveAsTxt(obj)
+                saveSettings = struct();
+                switch get(obj.handles.RadSave,'Checked')
+                    case 'on'
+                        saveSettings.Rad = 1;
+                    case 'off'
+                        saveSettings.Rad = 0;
+                end
+                switch get(obj.handles.TempSave,'Checked')
+                    case 'on'
+                        saveSettings.Temp = 1;
+                    case 'off'
+                        saveSettings.Temp = 0;
+                end
+                switch get(obj.handles.EmissivitySave,'Checked')
+                    case 'on'
+                        saveSettings.Emissivity = 1;
+                    case 'off'
+                        saveSettings.Emissivity = 0;
+                end
+                disp(saveSettings)
+            end
+
     end
     methods(Access = private)
         function Calibrate(obj)

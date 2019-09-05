@@ -22,7 +22,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 02-Sep-2019 13:28:59
+% Last Modified by GUIDE v2.5 05-Sep-2019 11:16:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -163,7 +163,7 @@ function saveRad_Callback(hObject, eventdata, handles)
 % hObject    handle to saveRad (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+handles.MainData.SaveAsTxt();
 
 
 function binRes_Callback(hObject, eventdata, handles)
@@ -512,3 +512,65 @@ function channelList_Callback(hObject, eventdata, handles)
 % hObject    handle to channelList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function mSave_Callback(hObject, eventdata, handles)
+% hObject    handle to mSave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+curr_dir = pwd;
+cd(handles.PMTfilePath);
+[mName,mPath] = uiputfile('*.mat','Save Session');
+mFile = fullfile(mPath,mName);
+save(string(mFile));
+cd(curr_dir);
+
+% --------------------------------------------------------------------
+function mLoad_Callback(hObject, eventdata, handles)
+% hObject    handle to mLoad (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[mName,mPath] = uigetfile('*.mat','Load Previous Session');
+mFile = fullfile(mPath,mName);
+if ~strcmp(string(mPath),'0')
+    delete(handles.PMTFigure);
+    load(mFile,'-mat');
+end
+
+
+% --------------------------------------------------------------------
+function SaveList_Callback(hObject, eventdata, handles)
+% hObject    handle to SaveList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function RadSave_Callback(hObject, eventdata, handles)
+% hObject    handle to RadSave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SaveListClick(hObject)
+guidata(hObject,handles);
+
+% --------------------------------------------------------------------
+function TempSave_Callback(hObject, eventdata, handles)
+% hObject    handle to TempSave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function EmissivitySave_Callback(hObject, eventdata, handles)
+% hObject    handle to EmissivitySave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+function SaveListClick(hObject)
+    switch get(hObject,'Checked')
+        case 'on'
+            set(hObject,'Checked','off');
+        case 'off'
+            set(hObject,'Checked','on');
+    end
