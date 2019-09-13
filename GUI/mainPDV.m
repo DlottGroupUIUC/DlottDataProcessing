@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 12-Sep-2019 16:05:35
+% Last Modified by GUIDE v2.5 13-Sep-2019 11:20:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -432,9 +432,9 @@ function Ch3Button_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Ch3Button
 
 
-% --- Executes on button press in AddPt.
-function AddPt_Callback(hObject, eventdata, handles)
-% hObject    handle to AddPt (see GCBO)
+% --- Executes on button press in AddPkButton.
+function AddPkButton_Callback(hObject, eventdata, handles)
+% hObject    handle to AddPkButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.PDV_Data.AddPeak()
@@ -447,7 +447,7 @@ function ChannelList_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns ChannelList contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from ChannelList
-disp(get(hObject,'Value'))
+
 
 % --- Executes during object creation, after setting all properties.
 function ChannelList_CreateFcn(hObject, eventdata, handles)
@@ -460,3 +460,11 @@ function ChannelList_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in DelPkButton.
+function DelPkButton_Callback(hObject, eventdata, handles)
+% hObject    handle to DelPkButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.PDV_Data.DeletePeak()

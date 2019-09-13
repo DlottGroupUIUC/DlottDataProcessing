@@ -30,10 +30,6 @@ classdef PeakFitData < handle
             obj.CalcVelocity();
        end
        function DeletePeak(obj,Xdel,Ch)
-            [~,Xidx] = min(abs(Xdel-obj.PeakVolt{Ch}(:,1)));
-            obj.PeakVolt{Ch}(Xidx,:)=[];
-            obj.CalcVelocity();
-       end
    end
    methods(Access = private)
        function [VelTime,Velocity,PeakVolt] = PeakDet4(obj)

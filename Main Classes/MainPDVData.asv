@@ -84,19 +84,13 @@ classdef MainPDVData < handle
         end
         function AddPeak(obj)
             idx = get(obj.handles.FileList,'Value');
-            obj.PlotSingleChannel(idx);
+            obj.PlotSingleChannel(idx)
             [Xnew,~] = ginput(1);
             obj.DataStorage{idx}.AddPeak(Xnew,get(obj.handles.ChannelList,'Value'));
             obj.PlotData(idx);
             
         end
         function DeletePeak(obj)
-            idx = get(obj.handles.FileList,'Value');
-            obj.PlotSingleChannel(idx);
-            [Xdel,~] = ginput(1);
-            obj.DataStorage{idx}.DeletePeak(Xdel,get(obj.handles.ChannelList,'Value'));
-            obj.PlotData(idx);
-            
         end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
