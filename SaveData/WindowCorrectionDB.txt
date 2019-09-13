@@ -2,6 +2,8 @@ Window Correction Database. These are linear corrections to be made when
 substrate material is being compressed, so only applies to mirrors or any PDV measurements after impact.
 Last Updated (YYYY/MM/DD): 2019/08/09
 Update Initials: LS
-None:	1.0000
-Pyrex:	1.0625
-
+None	1.0000
+Pyrex	1.0675
+LiF	1.264
+Sapphire	1.729
+Quartz	1.076

@@ -2,6 +2,7 @@ classdef PeakFitData < handle
    properties
        Velocity;
        VelTime;
+       T0;
        PeakVolt;
        
    end
@@ -34,12 +35,14 @@ classdef PeakFitData < handle
             obj.PeakVolt{Ch}(Xidx,:)=[];
             obj.CalcVelocity();
        end
+
    end
    methods(Access = private)
        function [VelTime,Velocity,PeakVolt] = PeakDet4(obj)
            k = 1;
            x0 = obj.findT0(obj.ScopeTime,obj.ScopeVolt);
            x0 = x0-2;
+           obj.T0 = obj.ScopeTime(x0);
            ChList = obj.TParams.ChList;
            for j = 1:length(ChList)
                  i = ChList(j);
@@ -71,7 +74,7 @@ classdef PeakFitData < handle
                 x = smooth(velocity_final(3:end),3);
                 velocity_final(3:end) = x;
                 lineout_time = XYMAT(:,1);
-                new_time = obj.ScopeTime-velocityTime(1,1);
+                %VelTime0 = velocityTime-velocityTime(1,1);
                 VelTime = lineout_time;
                 Velocity = velocity_final;
                 PeakVolt = xyPeaks;

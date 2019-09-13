@@ -7,7 +7,7 @@ classdef MainPDVData < handle
         ScopeVolt;
         TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
         Toffset
-        %Window_Corrections = Window_Correction_Handle('WindowCorrectionDB.txt')
+        WindowCorrections 
         %PeakFit_Data = PeakAlgData.empty;
         DataStorage; %Cell array with all derived results
         handles; %data handle from main GUI data
@@ -24,6 +24,7 @@ classdef MainPDVData < handle
             obj.handles = guidata(obj.mainFig);
             obj.ProgBar = obj.handles.ProgressBar;
             obj.ProgText = obj.handles.InfoText;
+            obj.WindowCorrections = obj.WindowCorrectionDB('WindowCorrectionDB.txt');
             obj.Prog=0; obj.ProgressBar(); T = length(obj.handles.fileNames);
             for i = 1:T
                 [obj.ScopeTime{i},obj.ScopeVolt{i},obj.Toffset{i}] = obj.Readtxt(i);
@@ -35,11 +36,21 @@ classdef MainPDVData < handle
         end
         function PlotData(obj,idx)
             axes(obj.handles.WaveformAxis); hold off;
+            if ~isempty(obj.DataStorage{idx})
+                switch(get(obj.handles.T0Switch,'Value'))
+                    case 0
+                        Offset = 0;
+                    case 1
+                        Offset = obj.DataStorage{idx}.T0;
+                end
+            else
+                Offset = 0;
+            end
             for i = 1:4
                 if i ==3
                     continue
                 else
-                    plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,i)); hold on;
+                    plot(obj.ScopeTime{idx}-Offset,obj.ScopeVolt{idx}(:,i)); hold on;
                 end
                 legend('Ch. 1','Ch. 2','Ch. 4');
             end
@@ -47,14 +58,16 @@ classdef MainPDVData < handle
                 axes(obj.handles.LineoutAxis); hold off;
                 T = obj.DataStorage{idx}.VelTime;
                 Vel = obj.DataStorage{idx}.Velocity;
+                Name = get(obj.handles.FileList,'String');
+                Name = Name{id}
                 for i = 1:length(Vel(1,:))
-                    plot(T,Vel(:,i),'b.'); hold on;
+                    plot(T-Offset,Vel(:,i),'b.'); hold on;
                 end
                 if strcmp(class(obj.DataStorage{idx}),'PeakFitData')
                     axes(obj.handles.WaveformAxis);
                     for i = 1:length(obj.TimingParams.ChList)
                         PeakVolt = obj.DataStorage{idx}.PeakVolt{i};
-                        scatter(PeakVolt(:,1),PeakVolt(:,2),50,'LineWidth',2);
+                        scatter(PeakVolt(:,1)-Offset,PeakVolt(:,2),50,'LineWidth',2);
                     end
                     legend('Ch. 1','Ch. 2','Ch. 4','Ch. 1 Pk','Ch. 2 Pk','Ch. 4 Pk');
                     
@@ -84,24 +97,32 @@ classdef MainPDVData < handle
         end
         function AddPeak(obj)
             idx = get(obj.handles.FileList,'Value');
-            obj.PlotSingleChannel(idx)
+            obj.PlotSingleChannel(idx);
             [Xnew,~] = ginput(1);
             obj.DataStorage{idx}.AddPeak(Xnew,get(obj.handles.ChannelList,'Value'));
             obj.PlotData(idx);
             
         end
         function DeletePeak(obj)
+            idx = get(obj.handles.FileList,'Value');
+            obj.PlotSingleChannel(idx);
+            [Xdel,~] = ginput(1);
+            obj.DataStorage{idx}.DeletePeak(Xdel,get(obj.handles.ChannelList,'Value'));
+            obj.PlotData(idx);
+            
         end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
             STFTParams = {str2double(get(obj.handles.CutoffEdit,'String')),str2double(get(obj.handles.TransWindowEdit,'String')),obj.Toffset{idx}};
             obj.DataStorage{idx} = STFTData(obj.ScopeTime{idx},obj.ScopeVolt{idx},STFTParams,obj.TimingParams,ProgHandles);
+            obj.ApplyWindowCorrection(idx);
             obj.PlotData(idx);
         end
         function PeakAlg(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
             Thresh = str2double(get(obj.handles.ThreshEdit,'String'));
             obj.DataStorage{idx} = PeakFitData(obj.ScopeTime{idx},obj.ScopeVolt{idx},obj.TimingParams,ProgHandles,Thresh);
+            obj.ApplyWindowCorrection(idx);
             obj.PlotData(idx);
         end
             
@@ -144,8 +165,46 @@ classdef MainPDVData < handle
                 cd(work_dir);
                 end
         end
+        function ChangeWCFText(obj)
+            Material = get(obj.handles.WindowCorrectionList,'String');
+            Material = Material{get(obj.handles.WindowCorrectionList,'Value')};
+            WCF = obj.WindowCorrections.(Material);
+           set(obj.handles.WCFText,'String',WCF)
+        end
+        function AverageSelected(obj)
+            FileList = get(obj.handles.FileList,'Value');
+            [maxSize,maxidx] = obj.MaxDataSize(FileList);
+            TimeMatrix(:,1) = obj.DataStorage{maxidx}.VelTime;
+            DataMatrix = [];
+            for i = 1:length(FileList)
+                idx = FileList(i);
+                DataMatrix(:,i) = resample(obj.DataStorage{idx}.Velocity,maxSize,length(obj.DataStorage{idx}.VelTime));
+            end
+            AvgMat = mean(DataMatrix,2);
+            obj.DataStorage{end+1} = struct();
+            %PLACEHOLDER CODE!!!
+            obj.ScopeTime{end+1} = obj.ScopeTime{end};
+            obj.ScopeVolt{end+1} = obj.ScopeVolt{end};
+            %%
+            obj.DataStorage{end}.Velocity = AvgMat;
+            obj.DataStorage{end}.VelTime = TimeMatrix;
+            obj.DataStorage{end}.T0 = obj.AvgT0(FileList);
+            idx = length(obj.DataStorage);
+            obj.handles.fileNames = [obj.handles.fileNames, {'AvgCalc'}];
+            set(obj.handles.FileList,'String',obj.handles.fileNames');
+            obj.PlotAvg(idx);
+        end
     end
     methods(Access = private)
+        function PlotAvg(obj,idx)
+            
+            axes(obj.handles.LineoutAxis); hold off;
+            T = obj.DataStorage{idx}.VelTime;
+            Vel = obj.DataStorage{idx}.Velocity;
+                for i = 1:length(Vel(1,:))
+                    plot(T,Vel(:,i),'r.'); hold on;
+                end
+        end
         function [ScopeTime,ScopeVolt,Toffset] = Readtxt(obj,idx)
             name = obj.handles.fileNames{idx};
             name = strsplit(name,'Ch'); name = name{1};
@@ -186,6 +245,50 @@ classdef MainPDVData < handle
             set(obj.handles.Time0Text,'Enable','Off');
             set(obj.handles.Time0Text2,'Enable','Off');
         end
+        function ApplyWindowCorrection(obj,idx)
+            Material = get(obj.handles.WindowCorrectionList,'String');
+            Material = Material{get(obj.handles.WindowCorrectionList,'Value')};
+            WCF = obj.WindowCorrections.(Material);
+            obj.DataStorage{idx}.Velocity = obj.DataStorage{idx}.Velocity./WCF;
+        end
+        function [maxSize,maxidx] = MaxDataSize(obj,idx_list)
+            %find max size of selected datastorage objects
+            maxSize = 0;maxidx = 0;
+            for i = 1:length(idx_list)
+                k = idx_list(i);
+                if length(obj.DataStorage{k}.Velocity)>maxSize
+                    maxSize = length(obj.DataStorage{k}.Velocity);
+                    maxidx = k;
+                end
+            end
+        end
+        function [AvgT0] = AvgT0(obj,idx_list)
+            T0Mat = [];
+            for i = 1:length(idx_list)
+                k = idx_list(i);
+                T0Mat(i) = obj.DataStorage{k}.T0;
+            end
+            AvgT0 = mean(T0Mat);
+        end
+            
     end
+    methods(Static)
+        function WindowDB = WindowCorrectionDB(txt)
+            fileID = fopen(txt);
+            textscan(fileID,'%s',34);
+            WindowDB = struct(); 
+            while ~feof(fileID)
+                try
+                    Name = textscan(fileID,'%s',1);
+                    Name = Name{1}{1};
+                    Val = textscan(fileID,'%f',1);
+                    WindowDB.(Name) = Val{1};
+                catch
+                end
+            end
+            fclose(fileID);
+        end
+    end
+        
         
 end
