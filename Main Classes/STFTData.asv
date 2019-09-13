@@ -1,4 +1,4 @@
-classdef STFTData < handle
+classdef STFTData
    properties
        
        Velocity;
@@ -98,8 +98,8 @@ classdef STFTData < handle
                         cAmp(:,i) = obj.ScopeVolt(:,i);
                         continue
                     end
-                    t0 = obj.findT0(obj.ScopeTime,obj.ScopeVolt);
-                    obj.T0 = obj.ScopeTime(t0);
+                    t0 = findT0(obj.ScopeTime,obj.ScopeVolt);
+                    o
                     fitvals = polyfit(obj.ScopeTime(t0:end),obj.ScopeVolt(t0:end,i),1);
                     meanvals = polyval(fitvals,obj.ScopeTime);
                     cAmp(:,i) = (obj.ScopeVolt(:,i)-meanvals)./A(i);
