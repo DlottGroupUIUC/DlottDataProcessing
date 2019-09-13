@@ -62,6 +62,30 @@ classdef MainPDVData < handle
             xlim([xi,xf])
             linkaxes([obj.handles.WaveformAxis,obj.handles.LineoutAxis],'x');
         end
+        function PlotSingleChannel(obj,idx)
+            switch get(obj.handles.ChannelList,'Value')
+                case 1
+                    k = 1;
+                case 2
+                    k = 2;
+                case 3
+                    k = 4;
+            end
+            axes(obj.handles.WaveformAxis); hold off;
+            plot(obj.ScopeTime{idx},obj.ScopeVolt{idx}(:,k));
+            xi = str2double(get(obj.handles.xiEdit,'String')); xf = str2double(get(obj.handles.xfEdit,'String'));
+            xlim([xi,xf]);
+            linkaxes([obj.handles.WaveformAxis,obj.handles.LineoutAxis],'x');
+        end
+        function AddPeak(obj)
+            idx = get(obj.handles.FileList,'Value');
+            obj.PlotSingleChannel(idx)
+            [Xnew,~] = ginput(1);
+            
+            obj.DataStorage{idx}.AddPeak(Xnew,get(obj.handles.ChannelList,'Value'));
+            obj.PlotData(idx);
+            
+        end
         function Transform(obj,idx)
             ProgHandles = {obj.handles.ProgressBar,obj.handles.InfoText};
             STFTParams = {str2double(get(obj.handles.CutoffEdit,'String')),str2double(get(obj.handles.TransWindowEdit,'String')),obj.Toffset{idx}};

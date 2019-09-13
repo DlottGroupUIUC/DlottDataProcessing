@@ -12,6 +12,7 @@ classdef PeakFitData
        TParams;
        ProgHandles;
        Prog;
+       x0;
    end
    methods
        function obj = PeakFitData(T,V,TParams,ProgHandles,Thresh)
@@ -22,12 +23,32 @@ classdef PeakFitData
            obj.Thresh = Thresh;
            [obj.VelTime,obj.Velocity,obj.PeakVolt] = obj.PeakDet4();
        end
+       function AddPeak(obj,Xnew,Ch)
+           [Xnew,Xidx] = min(abs(Xnew-obj.ScopeTime));
+            Ynew = obj.ScopeVolt(Xidx,Ch);
+            obj.PeakVolt{Ch}=sortrows([obj.PeakVolt{Ch};Xnew,Ynew]);
+            for k = 1:length(obj.PeakVolt)
+                idx_0 = length(obj.PeakVolt{k}(obj.PeakVolt{k}(:,1)<=obj.ScopeTime(obj.x0),1));
+                velocity{k}=0.3875./diff(obj.PeakVolt{k}(idx_0+1:end,1));
+                xPeaks{k}=obj.PeakVolt{k}(idx_0+1:end,1);obj.xPeaks{k}(length(velocity{k}))=[];
+            end
+            XYMAT=sortrows([xPeaks{1},velocity{1};xPeaks{2},velocity{2};xPeaks{3},velocity{3};obj.ScopeTime(obj.x0),velocity0]);
+            velocityTime=XYMAT(:,1);
+            velocity_final=XYMAT(:,2);
+            x = smooth(velocity_final(3:end),3);
+            velocity_final(3:end) = x;
+            lineout_time = XYMAT(:,1);
+            new_time = obj.ScopeTime-velocityTime(1,1);
+            obj.VelTime = lineout_time;
+            obj.Velocity = velocity_final;
+       end
    end
    methods(Access = private)
        function [VelTime,Velocity,PeakVolt] = PeakDet4(obj)
            k = 1;
            x0 = obj.findT0(obj.ScopeTime,obj.ScopeVolt);
            x0 = x0-2;
+           obj.x0 = x0;
            ChList = obj.TParams.ChList;
            for j = 1:length(ChList)
                  i = ChList(j);

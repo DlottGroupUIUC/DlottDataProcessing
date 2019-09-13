@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 19-Aug-2019 11:57:43
+% Last Modified by GUIDE v2.5 12-Sep-2019 16:05:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -402,4 +402,61 @@ if ~strcmp(string(mPath),'0')
     delete(handles.figure1);
     load(mFile,'-mat');
     disp(handles.fileNames);
+end
+
+
+% --- Executes on button press in Ch1Button.
+function Ch1Button_Callback(hObject, eventdata, handles)
+% hObject    handle to Ch1Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Ch1Button
+
+
+% --- Executes on button press in Ch2Button.
+function Ch2Button_Callback(hObject, eventdata, handles)
+% hObject    handle to Ch2Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Ch2Button
+
+
+% --- Executes on button press in Ch3Button.
+function Ch3Button_Callback(hObject, eventdata, handles)
+% hObject    handle to Ch3Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Ch3Button
+
+
+% --- Executes on button press in AddPt.
+function AddPt_Callback(hObject, eventdata, handles)
+% hObject    handle to AddPt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.PDV_Data.AddPeak()
+
+% --- Executes on selection change in ChannelList.
+function ChannelList_Callback(hObject, eventdata, handles)
+% hObject    handle to ChannelList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns ChannelList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from ChannelList
+disp(get(hObject,'Value'))
+
+% --- Executes during object creation, after setting all properties.
+function ChannelList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ChannelList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
