@@ -8,7 +8,7 @@ classdef MainPDVData < handle
         TimingParams = Osc_Timing_Properties('PDVTimingParams.txt');
         Toffset
         WindowCorrections 
-        %PeakFit_Data = PeakAlgData.empty;
+        
         DataStorage; %Cell array with all derived results
         handles; %data handle from main GUI data
         ProgBar;
