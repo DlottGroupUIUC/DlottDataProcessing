@@ -22,7 +22,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 13-Sep-2019 16:03:01
+% Last Modified by GUIDE v2.5 17-Sep-2019 14:48:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -508,3 +508,18 @@ function T0Switch_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of T0Switch
+
+
+% --------------------------------------------------------------------
+function ExportTab_Callback(hObject, eventdata, handles)
+% hObject    handle to ExportTab (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function PMTXPort_Callback(hObject, eventdata, handles)
+% hObject    handle to PMTXPort (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.PDV_Data.Send2PMT();

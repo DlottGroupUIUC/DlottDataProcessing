@@ -133,9 +133,29 @@ function LoadTab_Callback(hObject, eventdata, handles)
 % hObject    handle to LoadTab (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+[fNames,fPath] = uigetfile('*.tdms','Load PMT Files','multiselect','on');
+if strcmp(string(fPath),'0')
+    error('LoadData:NoData',...
+        'No file input')
+end
+if ischar(fNames)
+    fNames = {fNames};
+end
+%{
+try
+    delete(handles.PDV_Data); %Delete old data
+catch
+    handles.PDV_Data = [];
+end
+%}
+handles.PMTfileNames = fNames; handles.PMTfilePath = fPath;
+guidata(hObject,handles);
 handles.MainData.LoadRoutine();
-
+set(handles.FileList,'Value',1); 
+set(handles.FileList,'String',fNames');
+handles.selectedFiles = 1;
+set(handles.runGray,'Enable','off');
+set(handles.runTempAll,'Enable','off');
 guidata(hObject,handles);
 
 % --------------------------------------------------------------------
@@ -332,7 +352,14 @@ function binAll_Callback(hObject, eventdata, handles)
 % hObject    handle to binAll (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.MainData.BinAll();
+    try handles.MainData;
+    catch
+        LoadTab_Callback(hObject,eventdata,handles);
+    end
+    for i = 1:length(handles.PMTfileNames)
+        handles.selectedFiles = i;guidata(hObject,handles);
+        runBinning_Callback(hObject,eventdata,handles);
+    end
     guidata(hObject,handles);
 
 
@@ -466,7 +493,10 @@ function runTempAll_Callback(hObject, eventdata, handles)
 % hObject    handle to runTempAll (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    handles.MainData.calcTempAll();
+    for i = 1:length(handles.PMTfileNames)
+        handles.selectedFiles = i;guidata(hObject,handles);
+        runGray_Callback(hObject,eventdata,handles);
+    end
     guidata(hObject,handles);
 
 

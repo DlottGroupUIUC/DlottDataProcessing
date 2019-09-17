@@ -159,16 +159,16 @@ classdef MainPMTData < handle
                 end
                 WD = pwd();
                 cd(obj.filePath);
-                [SaveFile,SavePath] = uiputfile('*.txt','Select Save File Destination');
+                [SaveFile,SavePath] = uiputfile('Select Save File Destination','*.txt');
                 cd(WD); 
                 if saveSettings.Rad
-                    obj.SaveRad(SaveFile,SavePath);
+                    obj.SaveRad();
                 end
                 if saveSettings.Temp
-                    obj.SaveTemp(SaveFile,SavePath);
+                    obj.SaveTemp();
                 end
                 if saveSettings.Emissivity
-                    obj.SaveEmissivity(SaveFile,SavePath);
+                    obj.SaveEmissivity();
                 end
             end
             function AddPDVData(obj,Data,Names)
@@ -218,13 +218,13 @@ classdef MainPMTData < handle
             
         end
         function SaveRad(obj,sName,sPath)
-            sName = sprintf('%s_radiance.txt',sName);
+            sName = sprintf('%s_grayTemp.txt',sName);
                 hdr1 = {}; hdr2 = {}; hdr3 = {};
                 for i = 1:length(obj.fileNames)
                     hdr1 = [hdr1,'time','radiance'];
                     hdr2 = [hdr2,'ns','(W/sr-m^2)'];
                     hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i}];
-                    save_data = [obj.DataStorage{i}.BinData(:,1).*1E9,obj.DataStorage{i}.binRad];
+                    save_data = [obj.DataStorage{i}.BinData(:,1),obj.DataStorage{i}.binRad];
                     full_save{i} = save_data;
                 end
                 fmt = repmat('%s\t ', 1, length(hdr1));
@@ -236,16 +236,17 @@ classdef MainPMTData < handle
                 fprintf(fid,fmt, hdr3{:});
                 fclose(fid);
                 %now insert data vector
-                dlmwrite(fullfile(sPath,sName),full_save,'-append','delimiter','\t');
+                dlmwrite(fullfile(save_path,save),full_save,'-append','delimiter','\t');
+                cd(work_dir);
         end
         function SaveTemp(obj,sName,sPath)
                 hdr1 = {}; hdr2 = {}; hdr3 = {};
                 sName = sprintf('%s_grayTemp.txt',sName);
                 for i = 1:length(obj.fileNames)
-                    hdr1 = [hdr1,'time','temperature','error'];
-                    hdr2 = [hdr2,'ns','K','k'];
-                    hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i},obj.fileNames{i}];
-                    save_data = [obj.DataStorage{i}.BinData(:,1).*1E9,obj.DataStorage{i}.binGray.Temp',obj.DataStorage{i}.binGray.TempError'];
+                    hdr1 = [hdr1,'time','temperature'];
+                    hdr2 = [hdr2,'ns','K'];
+                    hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i}];
+                    save_data = [obj.DataStorage{i}.BinData(:,1),obj.DataStorage{i}.binGray(:,1)];
                     full_save{i} = save_data;
                 end
                 fmt = repmat('%s\t ', 1, length(hdr1));
@@ -257,29 +258,10 @@ classdef MainPMTData < handle
                 fprintf(fid,fmt, hdr3{:});
                 fclose(fid);
                 %now insert data vector
-                dlmwrite(fullfile(sPath,sName),full_save,'-append','delimiter','\t');
+                dlmwrite(fullfile(save_path,save),full_save,'-append','delimiter','\t');
+                cd(work_dir);
         end
-        function SaveEmissivity(obj,sName,sPath)
-                hdr1 = {}; hdr2 = {}; hdr3 = {};
-                sName = sprintf('%s_grayPhi.txt',sName);
-                for i = 1:length(obj.fileNames)
-                    hdr1 = [hdr1,'time','Phi','error'];
-                    hdr2 = [hdr2,'ns','',''];
-                    hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i},obj.fileNames{i}];
-                    save_data = [obj.DataStorage{i}.BinData(:,1).*1E9,obj.DataStorage{i}.binGray.Emissivity',obj.DataStorage{i}.binGray.EmissivityError'];
-                    full_save{i} = save_data;
-                end
-                fmt = repmat('%s\t ', 1, length(hdr1));
-                fmt(end:end+1) = '\n';
-                %open save file and write headers
-                fid = fopen(fullfile(sPath,sName), 'w');
-                fprintf(fid, fmt, hdr1{:});
-                fprintf(fid,fmt, hdr2{:});
-                fprintf(fid,fmt, hdr3{:});
-                fclose(fid);
-                %now insert data vector
-                dlmwrite(fullfile(sPath,sName),full_save,'-append','delimiter','\t');
-        end
+
 
     end
     methods(Static)
