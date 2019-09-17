@@ -9,7 +9,7 @@ classdef PeakFitData < handle
    properties(Access = private)
        ScopeTime;
        ScopeVolt;
-       Thresh
+       Thresh;
        TParams;
        ProgHandles;
        Prog;

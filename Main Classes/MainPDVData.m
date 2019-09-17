@@ -165,7 +165,7 @@ classdef MainPDVData < handle
                 %now insert data vector
                 dlmwrite(fullfile(save_path,save),full_save,'-append','delimiter','\t');
                 cd(work_dir);
-                end
+            end
         end
         function ChangeWCFText(obj)
             Material = get(obj.handles.WindowCorrectionList,'String');
