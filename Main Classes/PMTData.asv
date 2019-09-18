@@ -108,13 +108,11 @@ methods(Access = private)
                     %Condense output vectors
                 obj.BinData(:,1)=binTime;
                 obj.BinData(:,[2:33])=binSpecRad;
-                %{
-                if ~isempty(obj.FileData.ExcChannels{1})
-                    for i = 1:length(obj.FileData.ExcChannels)
-                        obj.BinData(:,str2double(obj.FileData.ExcChannels{i})+1) = NaN;
+                if ~isempty(ExcChannels)
+                    for i = 1:length(ExcChannels)
+                        obj.BinData(:,ExcChannels(i+1))
                     end
                 end
-                %}
                 %Total Radiance
                 obj.binRad = sum(binSpecRad,2)*1e-9;
                 %Once binning is done clear full vectors from memory. It is
