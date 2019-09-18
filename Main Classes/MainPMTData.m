@@ -38,6 +38,7 @@ classdef MainPMTData < handle
             end
             obj.fileNames = fNames;
             obj.filePath = fPath;
+            obj.UnitConv = [];
             T = length(obj.fileNames);
             obj.DataStorage = cell(T,1);
             set(obj.handles.FileList,'Value',1); 

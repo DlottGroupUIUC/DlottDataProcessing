@@ -38,6 +38,7 @@ classdef MainPMTData < handle
             end
             obj.fileNames = fNames;
             obj.filePath = fPath;
+            obj.Unit
             T = length(obj.fileNames);
             obj.DataStorage = cell(T,1);
             set(obj.handles.FileList,'Value',1); 
@@ -61,7 +62,8 @@ classdef MainPMTData < handle
             if isempty(obj.UnitConv)
                 obj.Calibrate();
             end
-            ExcChannel = get(obj.handles.ExcChannelEdit,'String');
+            ExcChannels = get(obj.handles.ExcChannelEdit,'String');
+            ExcChannels = strsplit(ExcChannels,',');
             rawFile = convertTDMS(0,fullfile(obj.filePath,obj.fileNames{idx}));
             %grab parameters to make individual datafile measurement
             cFiltidx = get(obj.handles.calFiltList,'Value');
@@ -92,6 +94,7 @@ classdef MainPMTData < handle
             FileData.Delay = obj.FindPeakDelay(Time,Volt);
             FileData.Time = Time - FileData.Delay;
             FileData.Volt = Volt;
+            FileData.ExcChannels = ExcChannels;
             FileData.eFilt = obj.eFilter(:,eFiltidx);FileData.cFilt = obj.cFilter(:,cFiltidx);
             FileData.binRes = str2double(get(obj.handles.binRes,'String'));
             FileData.binStart = str2double(get(obj.handles.binStart,'String'));
