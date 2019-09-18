@@ -218,6 +218,7 @@ classdef MainPMTData < handle
             
         end
         function SaveRad(obj,sName,sPath)
+            sName = strsplit(sName,'.txt'); sName = sName{1};
             sName = sprintf('%s_radiance.txt',sName);
                 hdr1 = {}; hdr2 = {}; hdr3 = {};
                 for i = 1:length(obj.fileNames)
@@ -240,6 +241,7 @@ classdef MainPMTData < handle
         end
         function SaveTemp(obj,sName,sPath)
                 hdr1 = {}; hdr2 = {}; hdr3 = {};
+                sName = strsplit(sName,'.txt'); sName = sName{1};
                 sName = sprintf('%s_grayTemp.txt',sName);
                 for i = 1:length(obj.fileNames)
                     hdr1 = [hdr1,'time','temperature','error'];
@@ -261,10 +263,11 @@ classdef MainPMTData < handle
         end
         function SaveEmissivity(obj,sName,sPath)
                 hdr1 = {}; hdr2 = {}; hdr3 = {};
+                sName = strsplit(sName,'.txt'); sName = sName{1};
                 sName = sprintf('%s_grayPhi.txt',sName);
                 for i = 1:length(obj.fileNames)
                     hdr1 = [hdr1,'time','Phi','error'];
-                    hdr2 = [hdr2,'ns','',''];
+                    hdr2 = [hdr2,'ns','ratio','ratio'];
                     hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i},obj.fileNames{i}];
                     save_data = [obj.DataStorage{i}.BinData(:,1).*1E9,obj.DataStorage{i}.binGray.Emissivity',obj.DataStorage{i}.binGray.EmissivityError'];
                     full_save{i} = save_data;
