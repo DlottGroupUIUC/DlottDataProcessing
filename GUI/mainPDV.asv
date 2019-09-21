@@ -7,12 +7,10 @@ IMPORTANT: SCOPE offset is stored in the scope timing data text file in
 SAVE DATA folder. The channel list isn't really used, but its in there and
 shouldnt be touched. If you want to change scope offset, change it in this
 text file. It will update when new pdv files are loaded. 
-Time of first signal is based on first rise of Ch. 1 above 2x RMS of signal. 
+Time zero is based on first rise of Ch. 1 above 2x RMS of signal. 
 
 Correction factors are used to account for compressed windows changing
-refractive index of material. The list of materials is in the Save Data
-folder. Adding a new material only requires you to add the name and value
-to the text file then add the name to the dropdown list. 
+refractive index of material. 
 
 %}
 
