@@ -3,7 +3,7 @@ substrate material is being compressed, so only applies to mirrors or any PDV me
 Last Updated (YYYY/MM/DD): 2019/08/09
 Update Initials: LS
 None	1.0000
-Pyrex	1.0675
+Pyrex	1.0627
 LiF	1.264
 Sapphire	1.729
 Quartz	1.076
