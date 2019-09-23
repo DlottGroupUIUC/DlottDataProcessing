@@ -1,0 +1,8 @@
+Hugoniot Data: Us = A+b*up^2 + c*up
+Material	A	b	c	density
+Pyrex		5.359	0.417	-0.97	2.230
+Nitromethane	1.65	0	1.64	1.125
+Sapphire	8.74	0	0.957	4.0
+CaF2		5.15	0	1.180	3.18
+
+				

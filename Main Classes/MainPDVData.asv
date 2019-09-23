@@ -248,7 +248,7 @@ classdef MainPDVData < handle
             Flux = 0.5.*rho.*(A+b.*up.^2).*up.^2;
             Fluence = trapz(time,Flux);
             set(obj.handles.FluenceEdit,'String',Fluence);
-            set(obj.handles.DurationEdit,'String',Duration);
+            set(obj.handles.DurationEdit,'V',Duration);
         end
     end
     methods(Access = private)

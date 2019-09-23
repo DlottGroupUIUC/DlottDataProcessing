@@ -41,7 +41,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 17-Sep-2019 14:48:52
+% Last Modified by GUIDE v2.5 23-Sep-2019 11:04:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -542,3 +542,40 @@ function PMTXPort_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.PDV_Data.Send2PMT();
+
+
+% --- Executes on button press in RunFluenceButton.
+function RunFluenceButton_Callback(hObject, eventdata, handles)
+% hObject    handle to RunFluenceButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.PDV_Data.FluenceDurationCalc();
+
+% --- Executes on button press in pushbutton11.
+function pushbutton11_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in TargetMaterialMenu.
+function TargetMaterialMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to TargetMaterialMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns TargetMaterialMenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from TargetMaterialMenu
+handles.PDV_Data.FillFigureParams();
+
+% --- Executes during object creation, after setting all properties.
+function TargetMaterialMenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TargetMaterialMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
