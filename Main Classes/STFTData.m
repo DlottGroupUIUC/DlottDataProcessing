@@ -1,6 +1,8 @@
 classdef STFTData < handle
    properties
-       
+       Peak;
+       Duration;
+       Fluence;
        Velocity;
        VelTime;
        T0;

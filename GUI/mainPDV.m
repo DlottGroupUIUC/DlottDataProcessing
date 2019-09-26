@@ -97,7 +97,6 @@ guidata(hObject, handles);
 % Called when a user clicks on a tab
 function tabChangedCB(src, eventdata)
 
-disp(['Changing tab from ' eventdata.OldValue.Title ' to ' eventdata.NewValue.Title ] );
 
 % --- Outputs from this function are returned to the command line.
 function varargout = mainPDV_OutputFcn(hObject, eventdata, handles) 

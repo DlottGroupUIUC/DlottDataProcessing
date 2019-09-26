@@ -4,7 +4,9 @@ classdef PeakFitData < handle
        VelTime;
        T0;
        PeakVolt;
-       
+       Peak;
+       Duration;
+       Fluence
    end
    properties(Access = private)
        ScopeTime;

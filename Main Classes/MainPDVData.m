@@ -230,25 +230,44 @@ classdef MainPDVData < handle
             delete(obj.handles.figure1);
             delete(obj);
         end
-        function FluenceDurationCalc(obj);
+        function FluenceDurationCalc(obj)
             idx = get(obj.handles.FileList,'Value');
             x0 = obj.DataStorage{idx}.T0;
             axes(obj.handles.WaveformAxis);
             [xf,~] = ginput(1);
-            Duration = xf-x0;
+            obj.DataStorage{idx}.Duration = xf-x0;
             MIndex = get(obj.handles.TargetMaterialMenu,'Value');
             MList = get(obj.handles.TargetMaterialMenu,'String');
             Material = MList{MIndex}; Properties = obj.HugoniotDictionary(Material);
             rho = Properties(4);A = Properties(1); b = Properties(2); c = Properties(3);
             up = obj.DataStorage{idx}.Velocity;
             time = obj.DataStorage{idx}.VelTime;
-            time = time(time<xf);
+            up(time<x0) = 0;
             up = up(time<xf);
+            time = time(time<xf);
+            
+            
             %Us = A+b*up^2 + c*up
-            Flux = 0.5.*rho.*(A+b.*up.^2).*up.^2;
-            Fluence = trapz(time,Flux);
-            set(obj.handles.FluenceEdit,'String',Fluence);
-            set(obj.handles.DurationEdit,'String',Duration);
+            %Run exceptions for glass:
+            if Material == 'Pyrex'
+                for i = 1:length(up)
+                    if up(i) < 0.568
+                         cg = 1.861;%% note: these are specific to GLASS, from the glass hugoniot --> that is why the constants change for different velocities 
+                         Ag = 3.879;
+                         bg = 0;
+                        Flux(i) = 0.5.*rho.*(Ag+bg.*up(i).^2+cg.*up(i)).*up(i).^2;
+                    else
+                        Flux(i) = 0.5.*rho.*(A+b.*up(i).^2+c.*up(i)).*up(i).^2;
+                    end
+                end
+            else
+                Flux = 0.5.*rho.*(A+b.*up.^2+c.*up).*up.^2;
+            end
+            obj.DataStorage{idx}.Fluence = trapz(time,Flux);
+            obj.DataStorage{idx}.Peak = max(up);
+            set(obj.handles.FluenceEdit,'String',obj.DataStorage{idx}.Fluence);
+            set(obj.handles.DurationEdit,'String',obj.DataStorage{idx}.Duration);
+            set(obj.handles.PeakEdit,'String',obj.DataStorage{idx}.Peak);
         end
     end
     methods(Access = private)
