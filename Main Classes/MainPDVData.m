@@ -249,7 +249,7 @@ classdef MainPDVData < handle
             
             %Us = A+b*up^2 + c*up
             %Run exceptions for glass:
-            if Material == 'Pyrex'
+            if strcmp(Material,'Pyrex');
                 for i = 1:length(up)
                     if up(i) < 0.568
                          cg = 1.861;%% note: these are specific to GLASS, from the glass hugoniot --> that is why the constants change for different velocities 
@@ -268,6 +268,32 @@ classdef MainPDVData < handle
             set(obj.handles.FluenceEdit,'String',obj.DataStorage{idx}.Fluence);
             set(obj.handles.DurationEdit,'String',obj.DataStorage{idx}.Duration);
             set(obj.handles.PeakEdit,'String',obj.DataStorage{idx}.Peak);
+        end
+        function Send2SQL(obj)
+            SelectedFiles = get(obj.handles.FileList,'Value');
+            %Get list of selected indexes to add.
+            %Get collection parameters;
+            Response = inputdlg({'Day','Month','Year','Flyer Thickness','XTX Depth','Plate Number','Flyer Velocity'},'Collection Parameters');
+            ID_prefix = sprintf('%s%s%s',[Response{2},Response{1},Response{6}]);
+            Date = string(datetime(2019,10,18,'Format','yyy-MM-dd'));
+            Names = get(obj.handles.FileList,'String');
+            colNames = {'ID','CollectionDate','FlyerSize','ChargeDepth','FlyerVelocity',...
+                'PeakVelocity','Duration','Fluence','Pressed','Spot'};
+            Values = table();
+            for i = 1:length(SelectedFiles)
+                idx = SelectedFiles(i);
+                Name = Names{idx};
+                Name = strsplit(Name,'_');Position = str2double(Name{1});
+                ID = str2double(sprintf('%s%s',[ID_prefix,string(Position)]));
+                Value = table(ID,Date,str2double(Response{4}),str2double(Response{5}),str2double(Response{7}),obj.DataStorage{idx}.Peak,...
+                    obj.DataStorage{idx}.Duration,obj.DataStorage{idx}.Fluence,1,Position,'VariableNames',colNames);
+                Values = [Values;Value];
+
+            end
+            disp(Values)
+            conn = database('LocalSQLExpress','','');
+            tablename = 'XTX8003_Data.dbo.PDV_Data';
+            sqlwrite(conn,tablename,Values);
         end
     end
     methods(Access = private)

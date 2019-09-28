@@ -1,8 +1,8 @@
 classdef STFTData < handle
    properties
-       Peak;
-       Duration;
-       Fluence;
+       Peak = NaN;
+       Duration = NaN;
+       Fluence = NaN;
        Velocity;
        VelTime;
        T0;
