@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 30-Sep-2019 14:28:36
+% Last Modified by GUIDE v2.5 30-Sep-2019 15:56:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,12 +54,12 @@ function CMOS_Processor_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for CMOS_Processor
 handles.output = hObject;
-
+handles.CMOSController = mainCMOScontroller(handles.CMOSFigure);
 % Update handles structure
 guidata(hObject, handles);
 
 % UIWAIT makes CMOS_Processor wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.CMOSFigure);
 
 
 % --- Outputs from this function are returned to the command line.
