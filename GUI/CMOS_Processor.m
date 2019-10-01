@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 30-Sep-2019 18:58:19
+% Last Modified by GUIDE v2.5 01-Oct-2019 16:55:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -93,7 +93,7 @@ function TifSave_Callback(hObject, eventdata, handles)
 % hObject    handle to TifSave (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+handles.CMOSController.Save2Tif();
 
 % --------------------------------------------------------------------
 function TifLoad_Callback(hObject, eventdata, handles)
@@ -110,3 +110,11 @@ function FileTable_CellSelectionCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 idx = eventdata.Indices(1); %retrieve selected row.
 handles.CMOSController.SelectImage(idx); %write it to controller instance
+
+
+% --------------------------------------------------------------------
+function Save2TiffAll_Callback(hObject, eventdata, handles)
+% hObject    handle to Save2TiffAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.CMOSController.Save2TifAll();

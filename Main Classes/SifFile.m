@@ -1,6 +1,12 @@
 classdef SifFile < CMOSFiles
     properties
     end
+    properties(Access = private)
+        Gain
+        Delay
+        CollectionTime
+        ExposureTime
+    end
     methods
         function obj = SifFile(handles)
             obj@CMOSFiles(handles) %initiate the subclass instance
@@ -11,13 +17,16 @@ classdef SifFile < CMOSFiles
             end
             N = length(obj.FileNames);
             for i =1:N
-                obj.ImageMatrix(:,:,i) = obj.SIF_image_processor(obj.FileNames{i},obj.FilePath);
+                [obj.ImageMatrix(:,:,i),obj.Gain{i},obj.Delay{i},obj.CollectionTime{i},obj.ExposureTime{i}] = obj.SIF_image_processor(obj.FileNames{i},obj.FilePath);
             end
             obj.Initialized = 1;
         end
+        function [Gain,ExposureTime] = FetchMetadata(obj,idx)
+            Gain = obj.Gain{idx};ExposureTime = obj.ExposureTime{idx};
+        end
     end
     methods(Static)
-        function [raw_image] = SIF_image_processor( fname,fpath)
+        function [raw_image,gain,delay,tstamp,exp] = SIF_image_processor( fname,fpath)
             absfilepath = fullfile(fpath,fname);
             rc=atsif_readfromfile(absfilepath); % attempt to open the file
 
@@ -32,12 +41,14 @@ classdef SifFile < CMOSFiles
                     xaxis=0;
                     [rc,data]=atsif_getframe(signal,0,size); % retrieve the frame data
                     [rc,pattern]=atsif_getpropertyvalue(signal,'ReadPattern');
-
+                    [rc,gain]=atsif_getpropertyvalue(signal,'Gain');
+                    [rc,delay]=atsif_getpropertyvalue(signal,'Delay');
+                    [rc,tstamp]=atsif_getpropertyvalue(signal,'FormattedTime');
+                    [rc,exp]=atsif_getpropertyvalue(signal,'ExposureTime');
                     if(pattern == '4') % image
                         width = ((right - left)+1)/hBin;
                         height = ((top-bottom)+1)/vBin;
                        raw_image(:,:)=reshape(data,width,height); % reshape the 1D array to a 2D array for display
-
                        map=colormap(gray(255));
 
                    else
