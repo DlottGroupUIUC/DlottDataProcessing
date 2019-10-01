@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 30-Sep-2019 15:56:21
+% Last Modified by GUIDE v2.5 30-Sep-2019 18:58:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,6 +58,7 @@ handles.CMOSController = mainCMOScontroller(handles.CMOSFigure);
 % Update handles structure
 guidata(hObject, handles);
 
+
 % UIWAIT makes CMOS_Processor wait for user response (see UIRESUME)
 % uiwait(handles.CMOSFigure);
 
@@ -85,7 +86,7 @@ function SifLoad_Callback(hObject, eventdata, handles)
 % hObject    handle to SifLoad (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+handles.CMOSController.LoadSif();
 
 % --------------------------------------------------------------------
 function TifSave_Callback(hObject, eventdata, handles)
@@ -99,3 +100,13 @@ function TifLoad_Callback(hObject, eventdata, handles)
 % hObject    handle to TifLoad (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes when selected cell(s) is changed in FileTable.
+function FileTable_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to FileTable (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+idx = eventdata.Indices(1); %retrieve selected row.
+handles.CMOSController.SelectImage(idx); %write it to controller instance
