@@ -39,7 +39,18 @@ classdef mainCMOScontroller < handle
             [imMatrix,~,~] = obj.CMOSData.ExtractMatrix(idx);
             Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
             Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
-            imMatrix = mat2gray(imMatrix,[0,3000]);
+            %cast to [0,1] grayscale digitization to impost intensity
+            %scaling
+            imMatrix = mat2gray(imMatrix,[Imin,Imax]);
+            %recast to full 16 bit scale to save.
+            %{
+            if str2double(get(obj.handles.SaveLabel))
+            textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',scale,gain,exposure);
+            textRight = sprintf('Delay = %d ns',delay);
+            iout = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
+            iout = insertText(iout,[1400,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
+            imshow(iout);
+            %}
             imMatrix = uint16(round(imMatrix.*65535));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);

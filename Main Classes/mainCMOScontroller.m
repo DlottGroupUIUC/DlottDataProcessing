@@ -21,7 +21,11 @@ classdef mainCMOScontroller < handle
             obj.LoadRoutine();
         end
         function SelectImage(obj,idx)
-            obj.SelectedIndex = idx; %write selected index to memory
+            if any(idx)
+                obj.SelectedIndex = idx; %write selected index to memory
+            else
+                idx = obj.SelectedIndex;
+            end
             if ~isempty(obj.CMOSData.ExtractMatrix(idx))
                 obj.ShowImage(idx)
             end
@@ -43,6 +47,14 @@ classdef mainCMOScontroller < handle
             %scaling
             imMatrix = mat2gray(imMatrix,[Imin,Imax]);
             %recast to full 16 bit scale to save.
+            %{
+            if str2double(get(obj.handles.SaveLabel))
+            textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',scale,gain,exposure);
+            textRight = sprintf('Delay = %d ns',delay);
+            iout = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
+            iout = insertText(iout,[1400,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
+            imshow(iout);
+            %}
             imMatrix = uint16(round(imMatrix.*65535));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);

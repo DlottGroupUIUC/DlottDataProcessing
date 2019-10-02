@@ -5,6 +5,6 @@ delay = 50; gain = 2; exposure = 5;
 scale = 3000;
 textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',scale,gain,exposure);
 textRight = sprintf('Delay = %d ns',delay);
-iout = insertText(imdata,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
-iout = insertText(iout,[1400,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
+iout = insertText(imdata,[1,2300],text,'FontSize',64,'BoxColor','blue','TextColor','white');
+iout = insertText(kou,[2400,2300],textRight,'FontSize',64,'BoxColor','blue','TextColor','white');
 imshow(iout);

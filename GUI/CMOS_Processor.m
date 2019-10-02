@@ -128,7 +128,7 @@ function SaveIntensityZero_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of SaveIntensityZero as text
 %        str2double(get(hObject,'String')) returns contents of SaveIntensityZero as a double
-
+handles.CMOSController.SelectImage(0);
 
 % --- Executes during object creation, after setting all properties.
 function SaveIntensityZero_CreateFcn(hObject, eventdata, handles)
@@ -151,7 +151,7 @@ function SaveIntensityMax_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of SaveIntensityMax as text
 %        str2double(get(hObject,'String')) returns contents of SaveIntensityMax as a double
-
+handles.CMOSController.SelectImage(0);
 
 % --- Executes during object creation, after setting all properties.
 function SaveIntensityMax_CreateFcn(hObject, eventdata, handles)
