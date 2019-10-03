@@ -150,8 +150,6 @@ classdef mainCMOScontroller < handle
                 cla(obj.handles.NextWindow);
                 set(obj.handles.NextFilename,'String','');
             end
-            
-            ExposureTime = round(str2double(ExposureTime));
             set(obj.handles.GainEdit,'String',Gain);set(obj.handles.ExposureEdit,'String',ExposureTime);
         end
     end

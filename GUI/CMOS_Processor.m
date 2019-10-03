@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 02-Oct-2019 19:15:45
+% Last Modified by GUIDE v2.5 02-Oct-2019 20:15:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,11 @@ function CMOS_Processor_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for CMOS_Processor
 handles.output = hObject;
 handles.CMOSController = mainCMOScontroller(handles.CMOSFigure);
+hObject.CurrentAxes=handles.Logo;
+[A,map,~]  = imread('Metroid.png','BackGroundColor',get(handles.CMOSFigure,'color'));
+imshow(A,map);
+handles.logo.HandleVisibility='off';
+handles.logo.Visible='off';
 % Update handles structure
 guidata(hObject, handles);
 
