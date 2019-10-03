@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 02-Oct-2019 10:49:53
+% Last Modified by GUIDE v2.5 02-Oct-2019 19:15:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -108,8 +108,11 @@ function FileTable_CellSelectionCallback(hObject, eventdata, handles)
 % eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
+try
 idx = eventdata.Indices(1); %retrieve selected row.
 handles.CMOSController.SelectImage(idx); %write it to controller instance
+catch
+end
 
 
 % --------------------------------------------------------------------
@@ -164,3 +167,58 @@ function SaveIntensityMax_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function FlyerLaunchEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to FlyerLaunchEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of FlyerLaunchEdit as text
+%        str2double(get(hObject,'String')) returns contents of FlyerLaunchEdit as a double
+handles.CMOSController.SetDelay();
+
+% --- Executes during object creation, after setting all properties.
+function FlyerLaunchEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to FlyerLaunchEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in ParamLabel.
+function ParamLabel_Callback(hObject, eventdata, handles)
+% hObject    handle to ParamLabel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of ParamLabel
+
+
+% --- Executes on button press in DelayLabel.
+function DelayLabel_Callback(hObject, eventdata, handles)
+% hObject    handle to DelayLabel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of DelayLabel
+
+
+% --- Executes when entered data in editable cell(s) in FileTable.
+function FileTable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to FileTable (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+index = eventdata.Indices(1);
+handles.CMOSController.ChangeDelay(index);

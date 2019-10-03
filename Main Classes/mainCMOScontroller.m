@@ -30,6 +30,17 @@ classdef mainCMOScontroller < handle
                 obj.ShowImage(idx)
             end
         end
+        function SetDelay(obj)
+            if ~isempty(obj.CMOSData)
+                obj.CMOSData.UpdateFlyerLauch();
+            end
+            
+        end
+        function ChangeDelay(obj,idx)
+            %Changes Camera Delay
+            obj.CMOSData.ApplyDelay();
+            obj.ShowImage(idx);
+        end
         function Save2Tif(obj,varargin)
             idx = obj.SelectedIndex;
             if isempty(varargin)
@@ -40,27 +51,33 @@ classdef mainCMOScontroller < handle
             filename = obj.CMOSData.FileNames{idx};
             filename = strsplit(filename,'.');
             Fname = filename{1}; Fname = sprintf('%s.tiff',Fname);
-            [imMatrix,~,~] = obj.CMOSData.ExtractMatrix(idx);
+            [imMatrix,FDelay,CDelay] = obj.CMOSData.ExtractMatrix(idx);
             Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
             Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
             %cast to [0,1] grayscale digitization to impost intensity
             %scaling
             imMatrix = mat2gray(imMatrix,[Imin,Imax]);
             %recast to full 16 bit scale to save.
-            %{
-            if str2double(get(obj.handles.SaveLabel))
-            textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',scale,gain,exposure);
-            textRight = sprintf('Delay = %d ns',delay);
-            iout = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
-            iout = insertText(iout,[1400,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
-            imshow(iout);
+            if get(obj.handles.ParamLabel,'Value')
+                [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
+                ExposureTime = round(str2double(ExposureTime)*100);
+                Gain = str2double(Gain);
+                textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
+                imMatrix = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
+            end
+            if get(obj.handles.DelayLabel,'Value')
+                delay = FDelay-CDelay;
+                textRight = sprintf('Delay = %d ns',delay);
+                imMatrix = insertText(imMatrix,[1250,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
+            end
             %}
             imMatrix = uint16(round(imMatrix.*65535));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);
             tagstruct.ImageWidth = size(imMatrix,2);
-            tagstruct.Photometric = Tiff.Photometric.MinIsBlack;
+            tagstruct.Photometric = Tiff.Photometric.RGB;
             tagstruct.BitsPerSample = 16;
+            tagstruct.SamplesPerPixel = 3;
             tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
             tagstruct.Software = 'Matlab';
             setTag(t,tagstruct);
@@ -77,19 +94,33 @@ classdef mainCMOScontroller < handle
     end
     methods(Access = private)
         function LoadRoutine(obj)
-            Label = {'FileName'};
-            data = obj.CMOSData.FileNames';
+            Label = {'FileName','Camera Delay'};
+            data = [obj.CMOSData.FileNames',string(zeros(length(obj.CMOSData.FileNames),1))];
+            data = cellstr(data);
             set(obj.handles.FileTable,'Data',data);
             set(obj.handles.FileTable,'ColumnName',Label);
             obj.ShowImage(1);
         end
         function ShowImage(obj,idx)
-            [imMatrix,~,~] = obj.CMOSData.ExtractMatrix(idx);
+            [imMatrix,FDelay,CDelay] = obj.CMOSData.ExtractMatrix(idx);
             Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
             Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
             ScaleStr = sprintf('Intensity 1 = %d Counts',Imax);
             set(obj.handles.ScaleEdit,'String',ScaleStr);
             imMatrix = mat2gray(imMatrix,[Imin,Imax]);
+            [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
+            ExposureTime = round(str2double(ExposureTime)*100);
+            Gain = str2double(Gain);
+            if get(obj.handles.ParamLabel,'Value')
+                textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
+                imMatrix = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
+            end
+            if get(obj.handles.DelayLabel,'Value')
+                delay = CDelay - FDelay;
+                textRight = sprintf('Delay = %d ns',delay);
+                imMatrix = insertText(imMatrix,[1250,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
+            end
+            %}
             axes(obj.handles.MainWindow);
             imshow(imMatrix);set(obj.handles.TitleEdit,'String',obj.CMOSData.FileNames{idx});
             set(gca,'YTickLabel',[]);set(gca,'XTickLabel',[]);
@@ -119,8 +150,8 @@ classdef mainCMOScontroller < handle
                 cla(obj.handles.NextWindow);
                 set(obj.handles.NextFilename,'String','');
             end
-            [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
-            ExposureTime = round(str2double(ExposureTime)*100);
+            
+            ExposureTime = round(str2double(ExposureTime));
             set(obj.handles.GainEdit,'String',Gain);set(obj.handles.ExposureEdit,'String',ExposureTime);
         end
     end
