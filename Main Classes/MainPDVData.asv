@@ -288,10 +288,10 @@ classdef MainPDVData < handle
             %Get collection parameters;
             Response = inputdlg({'Day','Month','Year','Flyer Thickness','XTX Depth','Plate Number','Flyer Velocity'},'Collection Parameters');
             ID_prefix = sprintf('%s%s%s',[Response{2},Response{1},Response{6}]);
-            Date = string(datetime(str2double(Response{3}),str2double(Response{2}),str2double(Response{1}),'Format','yyy-MM-dd'));
+            Date = string(datetime(2019,10,18,'Format','yyy-MM-dd'));
             Names = get(obj.handles.FileList,'String');
             colNames = {'ID','CollectionDate','FlyerSize','ChargeDepth','FlyerVelocity',...
-                'PeakVelocity','Duration','Fluence','Spot'};
+                'PeakVelocity','Duration','Fluence','Pressed','Spot'};
             Values = table();
             for i = 1:length(SelectedFiles)
                 idx = SelectedFiles(i);
@@ -299,24 +299,17 @@ classdef MainPDVData < handle
                 Name = strsplit(Name,'_');Position = str2double(Name{1});
                 ID = str2double(sprintf('%s%s',[ID_prefix,string(Position)]));
                 Value = table(ID,Date,str2double(Response{4}),str2double(Response{5}),str2double(Response{7}),obj.DataStorage{idx}.Peak,...
-                    obj.DataStorage{idx}.Duration,obj.DataStorage{idx}.Fluence,Position,'VariableNames',colNames);
+                    obj.DataStorage{idx}.Duration,obj.DataStorage{idx}.Fluence,1,Position,'VariableNames',colNames);
                 Values = [Values;Value];
 
             end
+            disp(Values)
             conn = database('LocalSQLExpress','','');
             Database = 'XTX8003_Data'; TableName = 'PDV_Data';
-            TempTable = 'TempPDV';
-            OldData = sqlread(conn,'XTX8003_Data.dbo.PDV_Data');
             SQLQuery1 = sprintf('USE %s',Database);
             Data = fetch(conn,SQLQuery1);
-            TempTableLoc = sprintf('dbo.%s',TempTable);
-            NewData = [OldData;Values];
-            sqlwrite(conn,TempTableLoc,NewData);
-            SQLQuery2 = sprintf('DROP TABLE dbo.%s',TableName);
-            Data = fetch(conn,SQLQuery2);
-            SQLQuery3 = sprintf("EXEC sp_rename 'dbo.%s','%s'",TempTable,TableName);
-            Data = fetch(conn,SQLQuery3);
-            close(conn)
+            Databaseame = strsplit(TableName);Database = Database{1}
+            %sqlwrite(conn,tablename,Values);
         end
     end
     methods(Access = private)
