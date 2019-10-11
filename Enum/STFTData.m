@@ -1,0 +1,131 @@
+classdef STFTData < handle
+   properties
+       Peak = NaN;
+       Duration = NaN;
+       Fluence = NaN;
+       Velocity;
+       VelTime;
+       T0;
+       
+   end
+   properties(Access = private)
+        ScopeTime;
+       ScopeVolt;
+       STFTParams;
+       ProgHandles;
+       Prog;
+       TParams;
+   end
+   methods
+       function obj = STFTData(T,V,STFTParams,TParams,ProgHandles)
+           obj.ScopeTime = T;
+           obj.ScopeVolt = V;
+           obj.TParams = TParams;
+           obj.STFTParams = STFTParams;
+           obj.ProgHandles = ProgHandles;
+           [obj.VelTime,obj.Velocity] = obj.Transform();
+       end
+       function [VelTime,Velocity] = Transform(obj)
+            SampleSpacing = obj.ScopeTime(2) - obj.ScopeTime(1);
+            SampleFreq = (SampleSpacing*1E-9)^(-1);
+            TimeWindow = obj.STFTParams{2};
+            r = round(SampleFreq.*(TimeWindow*1E-9));
+            SampleRate = 0.08;
+            test = round(SampleRate/SampleSpacing);
+            if test ==0
+                test = 1;
+            end
+            obj.Prog = 0;
+            cAmp = obj.Detrend();
+            for i = 1:4
+                if i==3
+                    continue
+                end
+                [STFT,f,t] = spectrogram(cAmp(:,i),hamming(r),r-test,10*r,SampleFreq);
+                %%
+                obj.Prog = (2*i)/12;
+                obj.ProgressBar()
+                %%
+                if i == 1
+                    STFT_tot = abs(STFT);
+                else
+                    STFT_tot = STFT_tot + abs(STFT);
+                end
+            end
+            %%
+            obj.Prog = 9/12; obj.ProgressBar();
+            %%
+            STFT_tot = STFT_tot./3;
+            velocity_axis = f.*0.775./1e9;
+            VelTime = (t.*1e9)'+obj.STFTParams{3};
+            %%
+            obj.Prog = 10/12; obj.ProgressBar();
+            %%
+            Vcut = obj.STFTParams{1};
+            if Vcut > 0
+                filter = length(velocity_axis(velocity_axis<Vcut));
+                STFT_tot(1:filter,:)=0;
+                clear filter
+            end
+            [mx locs]=max(STFT_tot,[],1);
+            velocity_lineout=velocity_axis(locs);
+            obj.Prog = 11/12; obj.ProgressBar();
+            % Fit the FFT at each time step to better resolve the velocity. I use a
+            % polynomial since this is much, much less computationally expensive then a
+            % gaussian fit. 
+            velocity_lineout_fit = velocity_lineout;
+            for i=1:length(velocity_lineout)
+                if velocity_lineout(i) > 0.1 && (locs(i)+2)<length(velocity_axis)
+                    p = polyfit(velocity_axis((locs(i)-2):(locs(i)+2)),STFT_tot((locs(i)-2):(locs(i)+2),i),2);
+                    peakPosition = -p(2)./(p(1)*2);
+                    velocity_lineout_fit(i) = peakPosition;
+                else
+                    velocity_lineout_fit(i) = 0;
+                end
+            end
+            Velocity = velocity_lineout_fit;
+            obj.Prog = 1; obj.ProgressBar();
+            
+       end
+       function ProgressBar(obj)
+            DisplayStatus(obj.ProgHandles{1},obj.ProgHandles{2},obj.Prog);
+            drawnow;
+       end
+   end
+       methods(Access = private)
+           function [cAmp] = Detrend(obj)
+                A = [0.35,0.37,1,0.34]; %Correction factor
+                for i = 1:4
+                    if i ==3
+                        cAmp(:,i) = obj.ScopeVolt(:,i);
+                        continue
+                    end
+                    t0 = obj.findT0(obj.ScopeTime,obj.ScopeVolt);
+                    obj.T0 = obj.ScopeTime(t0);
+                    fitvals = polyfit(obj.ScopeTime(t0:end),obj.ScopeVolt(t0:end,i),1);
+                    meanvals = polyval(fitvals,obj.ScopeTime);
+                    cAmp(:,i) = (obj.ScopeVolt(:,i)-meanvals)./A(i);
+                end
+           end
+       end
+       methods(Static)
+           function [t0] = findT0(ScopeTime,ScopeVolt)
+                s = 0;
+                i = 1;
+                for j=1:(0.05*length(ScopeTime))
+                    s=s+ScopeVolt(j,i)^2;
+                end
+                rMS(i)=sqrt(s/(0.05*length(ScopeTime)));
+                i = 1;
+                try
+                while (abs(ScopeVolt(i,1)) < 5*rMS(1))
+                    i = i+1;
+                end
+                catch
+                    i = 1000;
+                end
+                t0 = i;
+            end
+       end
+end
+       

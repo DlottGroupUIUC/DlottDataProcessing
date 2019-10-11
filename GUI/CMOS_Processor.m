@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 02-Oct-2019 20:15:14
+% Last Modified by GUIDE v2.5 11-Oct-2019 11:42:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -227,3 +227,11 @@ function FileTable_CellEditCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 index = eventdata.Indices(1);
 handles.CMOSController.ChangeDelay(index);
+
+
+% --------------------------------------------------------------------
+function b16Load_Callback(hObject, eventdata, handles)
+% hObject    handle to b16Load (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.CMOSController.LoadB16();

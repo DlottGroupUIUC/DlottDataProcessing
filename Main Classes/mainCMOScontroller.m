@@ -20,6 +20,12 @@ classdef mainCMOScontroller < handle
             waitfor(obj.CMOSData.Initialized,'Value');
             obj.LoadRoutine();
         end
+        function LoadB16(obj)
+            obj.CMOSData = [];
+            obj.CMOSData = CookeFiles(obj.handles);
+            waitfor(obj.CMOSData.Initialized,'Value');
+            obj.LoadRoutine();
+        end
         function SelectImage(obj,idx)
             if any(idx)
                 obj.SelectedIndex = idx; %write selected index to memory
@@ -58,19 +64,7 @@ classdef mainCMOScontroller < handle
             %scaling
             imMatrix = mat2gray(imMatrix,[Imin,Imax]);
             %recast to full 16 bit scale to save.
-            if get(obj.handles.ParamLabel,'Value')
-                [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
-                ExposureTime = round(str2double(ExposureTime)*100);
-                Gain = str2double(Gain);
-                textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
-                imMatrix = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
-            end
-            if get(obj.handles.DelayLabel,'Value')
-                delay = FDelay-CDelay;
-                textRight = sprintf('Delay = %d ns',delay);
-                imMatrix = insertText(imMatrix,[1250,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
-            end
-            %}
+            imMatrix = obj.LabelImage(imMatrix,CDelay,FDelay,idx); %label image according to specifications
             imMatrix = uint16(round(imMatrix.*65535));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);
@@ -108,19 +102,7 @@ classdef mainCMOScontroller < handle
             ScaleStr = sprintf('Intensity 1 = %d Counts',Imax);
             set(obj.handles.ScaleEdit,'String',ScaleStr);
             imMatrix = mat2gray(imMatrix,[Imin,Imax]);
-            [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
-            ExposureTime = round(str2double(ExposureTime)*100);
-            Gain = str2double(Gain);
-            if get(obj.handles.ParamLabel,'Value')
-                textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
-                imMatrix = insertText(imMatrix,[1,2300],textLeft,'FontSize',64,'BoxColor','blue','TextColor','white');
-            end
-            if get(obj.handles.DelayLabel,'Value')
-                delay = CDelay - FDelay;
-                textRight = sprintf('Delay = %d ns',delay);
-                imMatrix = insertText(imMatrix,[1250,2350],textRight,'FontSize',128,'BoxColor','blue','TextColor','white');
-            end
-            %}
+            imMatrix = obj.LabelImage(imMatrix,CDelay,FDelay,idx); %label image according to specifications
             axes(obj.handles.MainWindow);
             imshow(imMatrix);set(obj.handles.TitleEdit,'String',obj.CMOSData.FileNames{idx});
             set(gca,'YTickLabel',[]);set(gca,'XTickLabel',[]);
@@ -150,7 +132,49 @@ classdef mainCMOScontroller < handle
                 cla(obj.handles.NextWindow);
                 set(obj.handles.NextFilename,'String','');
             end
+            [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
             set(obj.handles.GainEdit,'String',Gain);set(obj.handles.ExposureEdit,'String',ExposureTime);
+        end
+
+        function NewImage = LabelImage(obj,Image,CDelay,FDelay,idx)
+        [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
+            ExposureTime = round(str2double(ExposureTime)*100);
+            Gain = str2double(Gain);
+            if get(obj.handles.ParamLabel,'Value')
+                switch class(obj.CMOSData)
+                    case('SifFile')
+                        DimMat = [1,2300];
+                        Font = 64;
+                    case('CookeFiles')
+                        DimMat = [1,1];
+                        Font = 48;
+                        Gain = 100; ExposureTime = 3;
+                        
+                end
+                Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
+                Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
+                textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
+                Image1 = insertText(Image,DimMat,textLeft,'FontSize',Font,'BoxColor','blue','TextColor','white');
+                Image1(950:1000, 50:524,:) = [0.8];
+                Image1 = insertText(Image1,[50,875],'500 microns','FontSize',48,'BoxColor','black','TextColor','white','BoxOpacity',0);
+            else
+                Image1 = Image;
+            end
+            if get(obj.handles.DelayLabel,'Value')
+                switch class(obj.CMOSData)
+                    case('SifFile')
+                        DimMat = [1250,2350];
+                        Font = 128;
+                    case('CookeFiles')
+                        DimMat = [750,1];
+                        Font = 64;
+                end
+                delay = CDelay - FDelay;
+                textRight = sprintf('Delay = %d ns',delay);
+                NewImage = insertText(Image1,DimMat,textRight,'FontSize',Font,'BoxColor','blue','TextColor','white');
+            else
+                NewImage = Image1;
+            end
         end
     end
 end
