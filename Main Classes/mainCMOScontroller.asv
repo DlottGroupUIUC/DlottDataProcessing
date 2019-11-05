@@ -144,7 +144,7 @@ classdef mainCMOScontroller < handle
                 switch class(obj.CMOSData)
                     case('SifFile')
                         DimMat = [1,2300];
-                        ScalePos = [2200,50];
+                        ScalePos = [1,2200];
                         ScaleLength = 850; %px per 500 um
                         Font = 64;
                     case('CookeFiles')
@@ -152,15 +152,15 @@ classdef mainCMOScontroller < handle
                         Font = 48;
                         Gain = 100; ExposureTime = 3;
                         ScalePos = [950,50];
-                        ScaleLength = 240; %px per 500 um
+                        ScaleLength = 480; %px per 500 um;
                         
                 end
                 Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
                 Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
                 textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
                 Image1 = insertText(Image,DimMat,textLeft,'FontSize',Font,'BoxColor','blue','TextColor','white');
-                Image1(ScalePos(1):ScalePos(1)+50, ScalePos(2):ScalePos(2) + ScaleLength,:) = [0.8];
-                Image1 = insertText(Image1,[ScalePos(2),ScalePos(1)-100],'500 microns','FontSize',Font,'BoxColor','black','TextColor','white','BoxOpacity',0);
+                Image1(950:1000, 50:524,:) = [0.8];
+                Image1 = insertText(Image1,[50,875],'500 microns','FontSize',48,'BoxColor','black','TextColor','white','BoxOpacity',0);
             else
                 Image1 = Image;
             end

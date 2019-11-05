@@ -5,7 +5,7 @@ function varargout = launcher(varargin)
 %
 %      H = LAUNCHER returns the handle to a new LAUNCHER or the handle to
 %      the existing singleton*.
-%
+% 
 %      LAUNCHER('CALLBACK',hObject,eventData,handles,...) calls the local
 %      function named CALLBACK in LAUNCHER.M with the given input arguments.
 %
