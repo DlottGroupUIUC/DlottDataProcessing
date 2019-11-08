@@ -1,9 +1,8 @@
 classdef CookeFiles < CMOSFiles %b16 camera images
     properties
+        Calibration
     end
     properties(Access = private)
-        Obj10X = 0.934 %px per micron
-        Obj4X = 0.525 %px per micron
     end
     methods
         function obj = CookeFiles(handles)
@@ -20,8 +19,6 @@ classdef CookeFiles < CMOSFiles %b16 camera images
             for i = 1:N
                 obj.ImageMatrix(:,:,i) = obj.readB16(obj.FilePath,obj.FileNames{i});
             end
-            obj.Cal10 = obj.Obj10X;
-            obj.Cal4 = obj.Obj4X;
             obj.Initialized = 1;
         end
     end

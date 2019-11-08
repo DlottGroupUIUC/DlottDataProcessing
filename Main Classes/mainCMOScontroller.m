@@ -68,7 +68,14 @@ classdef mainCMOScontroller < handle
             tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
             tagstruct.Software = 'Matlab';
             setTag(t,tagstruct);
+            try
             write(t,imMatrix);
+            catch
+                tagstruct.SamplesPerPixel = 1;
+                tagstruct.Photometric = Tiff.Photometric.MinIsBlack;
+                setTag(t,tagstruct);
+                write(t,imMatrix);
+            end
             close(t);
         end
         function Save2TifAll(obj)
@@ -133,6 +140,7 @@ classdef mainCMOScontroller < handle
         [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
             ExposureTime = round(str2double(ExposureTime)*100);
             Gain = str2double(Gain);
+            
             if get(obj.handles.ParamLabel,'Value')
                 switch class(obj.CMOSData)
                     case('SifFile')
@@ -145,9 +153,8 @@ classdef mainCMOScontroller < handle
                         Font = 48;
                         ExposureTime = str2double(get(obj.handles.ExposureInput,'String')); Gain = str2double(get(obj.handles.GainInput,'String'));
                         ScalePos = [950,50];
-                        %10X measurement: 0.934 px/um
-                        ScaleLength = 467; %px per 500 um ON 10X
                 end
+
                 Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
                 Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
                 textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
@@ -172,18 +179,21 @@ classdef mainCMOScontroller < handle
                 Image2 = Image1;
             end
             if get(obj.handles.ScaleBar,'Value')
+                switch get(obj.handles.ObjectiveList,'Value')
+                    case 1
+                        Cal = obj.CMOSData.Cal4;
+                    case 2
+                        Cal = obj.CMOSData.Cal10;
+                end
                 switch class(obj.CMOSData)
                     case('SifFile')
                         ScalePos = [2200,50];
-                        ScaleLength = 850; %px per 500 um
                         Font = 64;
                     case('CookeFiles')
                         Font = 48;
-                        ExposureTime = str2double(get(obj.handles.ExposureInput,'String')); Gain = str2double(get(obj.handles.GainInput,'String'));
                         ScalePos = [950,50];
-                        %10X measurement: 0.934 px/um
-                        ScaleLength = 467; %px per 500 um ON 10X
                 end
+                ScaleLength = round(500*Cal);
                 Image2(ScalePos(1):ScalePos(1)+50, ScalePos(2):ScalePos(2) + ScaleLength,:) = [0.8];
                 NewImage = insertText(Image2,[ScalePos(2),ScalePos(1)-100],'500 microns','FontSize',Font,'BoxColor','black','TextColor','white','BoxOpacity',0);
             else

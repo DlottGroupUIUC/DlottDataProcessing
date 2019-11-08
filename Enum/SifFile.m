@@ -4,6 +4,8 @@ classdef SifFile < CMOSFiles
     properties(Access = private)
         Delay
         CollectionTime
+        Obj10X = 1.70 %px per micron
+        Obj4X = 4.00 %px per micron-DO NOT TRUST THIS NUMBER
     end
     methods
         function obj = SifFile(handles)
@@ -17,6 +19,8 @@ classdef SifFile < CMOSFiles
             for i =1:N
                 [obj.ImageMatrix(:,:,i),obj.Gain{i},obj.Delay{i},obj.CollectionTime{i},obj.ExposureTime{i}] = obj.SIF_image_processor(obj.FileNames{i},obj.FilePath);
             end
+            obj.Cal10 = obj.Obj10X;
+            obj.Cal4 = obj.Obj4X;
             obj.Initialized = 1;
         end
         
