@@ -7,6 +7,9 @@ classdef CookeFiles < CMOSFiles %b16 camera images
         function obj = CookeFiles(handles)
             obj = obj@CMOSFiles(handles);
             [obj.FileNames,obj.FilePath] = uigetfile('*.b16','Select .b16 images','Multiselect','On');
+            if ~iscell(obj.FileNames)
+                obj.FileNames = {obj.FileNames};
+            end
             N = length(obj.FileNames);
             %.b16 files don't really have metadata, so we'll populate it
             %with NaN.

@@ -57,14 +57,7 @@ classdef mainCMOScontroller < handle
             filename = obj.CMOSData.FileNames{idx};
             filename = strsplit(filename,'.');
             Fname = filename{1}; Fname = sprintf('%s.tiff',Fname);
-            [imMatrix,FDelay,CDelay] = obj.CMOSData.ExtractMatrix(idx);
-            Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
-            Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
-            %cast to [0,1] grayscale digitization to impost intensity
-            %scaling
-            imMatrix = mat2gray(imMatrix,[Imin,Imax]);
-            %recast to full 16 bit scale to save.
-            imMatrix = obj.LabelImage(imMatrix,CDelay,FDelay,idx); %label image according to specifications
+            imMatrix = obj.MakeImage(idx);
             imMatrix = uint16(round(imMatrix.*65535));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);
@@ -96,17 +89,14 @@ classdef mainCMOScontroller < handle
             obj.ShowImage(1);
         end
         function ShowImage(obj,idx)
-            [imMatrix,FDelay,CDelay] = obj.CMOSData.ExtractMatrix(idx);
+            imMatrix = obj.MakeImage(idx);
             Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
             Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
             ScaleStr = sprintf('Intensity 1 = %d Counts',Imax);
             set(obj.handles.ScaleEdit,'String',ScaleStr);
-            imMatrix = mat2gray(imMatrix,[Imin,Imax]);
-            imMatrix = obj.LabelImage(imMatrix,CDelay,FDelay,idx); %label image according to specifications
             axes(obj.handles.MainWindow);
             imshow(imMatrix);set(obj.handles.TitleEdit,'String',obj.CMOSData.FileNames{idx});
             set(gca,'YTickLabel',[]);set(gca,'XTickLabel',[]);
-            colorbar
             %load previous and next image
             if idx > 1
                 axes(obj.handles.PreviousWindow);
@@ -115,7 +105,6 @@ classdef mainCMOScontroller < handle
                 imshow(Prev_imMatrix);set(obj.handles.PrevFilename,'String',obj.CMOSData.FileNames{idx-1});
                 set(gca,'YTickLabel',[]);set(gca,'XTickLabel',[]);
                 set(gca,'YTick',[]);set(gca,'XTick',[]);
-                colorbar
             else
                 cla(obj.handles.PreviousWindow);
                 set(obj.handles.PrevFilename,'String','');
@@ -127,12 +116,16 @@ classdef mainCMOScontroller < handle
                 imshow(Next_imMatrix);set(obj.handles.NextFilename,'String',obj.CMOSData.FileNames{idx+1});
                 set(gca,'YTickLabel',[]);set(gca,'XTickLabel',[]);
                 set(gca,'YTick',[]);set(gca,'XTick',[]);
-                colorbar;
             else
                 cla(obj.handles.NextWindow);
                 set(obj.handles.NextFilename,'String','');
             end
-            [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
+            switch class(obj.CMOSData)
+                case 'SifFile'
+                    [Gain,ExposureTime] = obj.CMOSData.FetchMetadata(idx);
+                case 'CookeFiles'
+                    ExposureTime = str2double(get(obj.handles.ExposureInput,'String')); Gain = str2double(get(obj.handles.GainInput,'String'));
+            end
             set(obj.handles.GainEdit,'String',Gain);set(obj.handles.ExposureEdit,'String',ExposureTime);
         end
 
@@ -150,17 +143,16 @@ classdef mainCMOScontroller < handle
                     case('CookeFiles')
                         DimMat = [1,1];
                         Font = 48;
-                        Gain = 100; ExposureTime = 3;
+                        ExposureTime = str2double(get(obj.handles.ExposureInput,'String')); Gain = str2double(get(obj.handles.GainInput,'String'));
                         ScalePos = [950,50];
-                        ScaleLength = 240; %px per 500 um
-                        
+                        %10X measurement: 0.934 px/um
+                        ScaleLength = 467; %px per 500 um ON 10X
                 end
                 Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
                 Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
                 textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
                 Image1 = insertText(Image,DimMat,textLeft,'FontSize',Font,'BoxColor','blue','TextColor','white');
-                Image1(ScalePos(1):ScalePos(1)+50, ScalePos(2):ScalePos(2) + ScaleLength,:) = [0.8];
-                Image1 = insertText(Image1,[ScalePos(2),ScalePos(1)-100],'500 microns','FontSize',Font,'BoxColor','black','TextColor','white','BoxOpacity',0);
+                
             else
                 Image1 = Image;
             end
@@ -175,10 +167,37 @@ classdef mainCMOScontroller < handle
                 end
                 delay = CDelay - FDelay;
                 textRight = sprintf('Delay = %d ns',delay);
-                NewImage = insertText(Image1,DimMat,textRight,'FontSize',Font,'BoxColor','blue','TextColor','white');
+                Image2 = insertText(Image1,DimMat,textRight,'FontSize',Font,'BoxColor','blue','TextColor','white');
             else
-                NewImage = Image1;
+                Image2 = Image1;
             end
+            if get(obj.handles.ScaleBar,'Value')
+                switch class(obj.CMOSData)
+                    case('SifFile')
+                        ScalePos = [2200,50];
+                        ScaleLength = 850; %px per 500 um
+                        Font = 64;
+                    case('CookeFiles')
+                        Font = 48;
+                        ExposureTime = str2double(get(obj.handles.ExposureInput,'String')); Gain = str2double(get(obj.handles.GainInput,'String'));
+                        ScalePos = [950,50];
+                        %10X measurement: 0.934 px/um
+                        ScaleLength = 467; %px per 500 um ON 10X
+                end
+                Image2(ScalePos(1):ScalePos(1)+50, ScalePos(2):ScalePos(2) + ScaleLength,:) = [0.8];
+                NewImage = insertText(Image2,[ScalePos(2),ScalePos(1)-100],'500 microns','FontSize',Font,'BoxColor','black','TextColor','white','BoxOpacity',0);
+            else
+                NewImage = Image2;
+            end
+        end
+        function Image = MakeImage(obj,idx)
+            [imMatrix,FDelay,CDelay] = obj.CMOSData.ExtractMatrix(idx);
+            Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
+            Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
+            ScaleStr = sprintf('Intensity 1 = %d Counts',Imax);
+            set(obj.handles.ScaleEdit,'String',ScaleStr);
+            imMatrix = mat2gray(imMatrix,[Imin,Imax]);
+            Image = obj.LabelImage(imMatrix,CDelay,FDelay,idx); %label image according to specifications
         end
     end
 end

@@ -22,7 +22,7 @@ function varargout = CMOS_Processor(varargin)
 
 % Edit the above text to modify the response to help CMOS_Processor
 
-% Last Modified by GUIDE v2.5 05-Nov-2019 14:31:07
+% Last Modified by GUIDE v2.5 08-Nov-2019 15:44:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -258,3 +258,70 @@ function ObjectiveList_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --------------------------------------------------------------------
+function FileTable_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to FileTable (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+try
+idx = eventdata.Indices(1); %retrieve selected row.
+handles.CMOSController.SelectImage(idx); %write it to controller instance
+catch
+end
+
+
+
+function ExposureInput_Callback(hObject, eventdata, handles)
+% hObject    handle to ExposureInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ExposureInput as text
+%        str2double(get(hObject,'String')) returns contents of ExposureInput as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ExposureInput_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ExposureInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function GainInput_Callback(hObject, eventdata, handles)
+% hObject    handle to GainInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of GainInput as text
+%        str2double(get(hObject,'String')) returns contents of GainInput as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function GainInput_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to GainInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in ScaleBar.
+function ScaleBar_Callback(hObject, eventdata, handles)
+% hObject    handle to ScaleBar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of ScaleBar
