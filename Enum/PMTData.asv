@@ -19,10 +19,7 @@ classdef PMTData < handle
         function obj = PMTData(FileData,bool)
             obj.FileData = FileData;
             switch bool
-                case 1 
-                    obj.TDMSshort()
-                case 0 
-            end
+                case 1 obj.TDMSshort()
         end
         function GrayBodyFit(obj)
             obj.binGray = obj.TempFit();

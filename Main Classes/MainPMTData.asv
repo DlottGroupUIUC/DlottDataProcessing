@@ -58,24 +58,18 @@ classdef MainPMTData < handle
                     obj.calcTemp(i);
                 end
         end
-        function TempAverage(obj,Files)
+        function TempAverage(obj)
             for i = 1:length(Files)
                 Data(:,:,i) = obj.DataStorage{Files(i)}.BinData;
             end
-            idx = find(contains(obj.fileNames,'Averaged Data'));
-            if ~isempty(idx)
-                Index = idx;
-            else
+            try Index = strfind(obj.fileNames, 'Averaged Data');
+            catch
                 Index = length(obj.fileNames)+1;
                 obj.fileNames{Index} = 'Averaged Data';
             end
-            FileData.Delay = 0;
-            FileData.binRes = str2double(get(obj.handles.binRes,'String'));
-            FileData.binStart = str2double(get(obj.handles.binStart,'String'));
-            FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
-            obj.DataStorage{Index} = PMTData(FileData,0);
-            [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
-            set(obj.handles.FileList,'String',obj.fileNames);
+            obj.DataStorage{Index} = PMTData();
+            [obj.DataStorage{Index}.BinData,... 
+            obj.DataStorage{Index.BinRad}
         end
         function BinPMTData(obj,idx)
             if isempty(obj.UnitConv)
@@ -120,7 +114,7 @@ classdef MainPMTData < handle
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             FileData.UnitConv = obj.UnitConv;
             FileData.binBool = ~(str2double(get(obj.handles.binRes,'String'))==0);
-            obj.DataStorage{idx} = PMTData(FileData,1);
+            obj.DataStorage{idx} = PMTData(FileData);
             obj.RadianceSemiLogPlot(idx);
             set(obj.handles.runGray,'Enable','on');
             set(obj.handles.runTempAll,'Enable','on');

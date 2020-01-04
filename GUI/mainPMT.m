@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 18-Sep-2019 10:53:26
+% Last Modified by GUIDE v2.5 03-Jan-2020 17:56:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -567,7 +567,7 @@ function mSave_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 curr_dir = pwd;
-cd(handles.PMTfilePath);
+cd(handles.MainData.filePath);
 [mName,mPath] = uiputfile('*.mat','Save Session');
 mFile = fullfile(mPath,mName);
 save(string(mFile));
@@ -667,3 +667,13 @@ function ExcChannelEdit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in TempAVG_Button.
+function TempAVG_Button_Callback(hObject, eventdata, handles)
+% hObject    handle to TempAVG_Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedFiles = get(handles.FileList,'Value');
+handles.selectedIndex = min(handles.selectedFiles);
+handles.MainData.TempAverage(handles.selectedFiles);
