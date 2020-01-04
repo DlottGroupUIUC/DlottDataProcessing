@@ -68,6 +68,7 @@ classdef MainPMTData < handle
             else
                 Index = length(obj.fileNames)+1;
                 obj.fileNames{Index} = 'Averaged Data';
+                set(obj.handles.FileList,'String',obj.fileNames);
             end
             FileData.Delay = 0;
             FileData.binRes = str2double(get(obj.handles.binRes,'String'));
@@ -75,7 +76,7 @@ classdef MainPMTData < handle
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             obj.DataStorage{Index} = PMTData(FileData,0);
             [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
-            set(obj.handles.FileList,'String',obj.fileNames);
+            
         end
         function BinPMTData(obj,idx)
             if isempty(obj.UnitConv)

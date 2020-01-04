@@ -51,6 +51,7 @@ methods(Access = private)
             vector=cTime(Time>0,:);
             TimeVector=Time(Time>0);
             %Begin data binning at 10 ns
+            
             binSpecRad=vector(find(TimeVector>0,1,'first'):find(TimeVector<1*10^obj.FileData.binStart,1,'last'),:);
             binTime=TimeVector(find(TimeVector>0,1,'first'):find(TimeVector<1*10^obj.FileData.binStart,1,'last'));
 
@@ -110,8 +111,9 @@ methods(Access = private)
                 end
 
                     %Condense output vectors
-                obj.BinData(:,1)=binTime;
-                obj.BinData(:,[2:33])=binSpecRad;
+                obj.BinData = zeros(128,33);
+                obj.BinData(1:length(binTime),1)=binTime;
+                obj.BinData(1:length(binTime),[2:33])=binSpecRad;
                 %{
                 if ~isempty(obj.FileData.ExcChannels{1})
                     for i = 1:length(obj.FileData.ExcChannels)
@@ -120,7 +122,8 @@ methods(Access = private)
                 end
                 %}
                 %Total Radiance
-                obj.binRad = sum(binSpecRad,2)*1e-9;
+                obj.binRad = NaN(128,1);
+                obj.binRad(1:length(binTime)) = sum(binSpecRad,2)*1e-9;
                 %Once binning is done clear full vectors from memory. It is
                 %no longer needed
                 obj.FileData.Time = [];obj.FileData.Volt = [];
