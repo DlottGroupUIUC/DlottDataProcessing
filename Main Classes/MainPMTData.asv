@@ -117,7 +117,7 @@ classdef MainPMTData < handle
             FileData.Volt = Volt;
             FileData.ExcChannels = ExcChannels;
 
-            switch eFiltidx
+            switch obj.eFiltidx
                 case 5
                     FileData.eFilt = obj.eFilter(:,2).*obj.eFilter(:,4);
                 otherwise
