@@ -52,6 +52,7 @@ classdef MainPMTData < handle
             obj.DataStorage{idx}.GrayBodyFit();
             obj.TempPlot(idx);
             obj.EmissivityPlot(idx);
+            obj.SpectrumPlot(idx);
         end
         function calcTempAll(obj)
                 for i = 1:length(obj.fileNames)
@@ -170,6 +171,38 @@ classdef MainPMTData < handle
                 text = sprintf('Emissivity Plot of %s',obj.fileNames{idx});
                 title(text);
             end
+            function SpectrumPlot(obj,idx)
+                axes(obj.handles.axes5); hold off;
+                Temp = obj.DataStorage{idx}.binGray.Temp;
+                TempError = obj.DataStorage{idx}.binGray.TempError;
+                time = obj.DataStorage{idx}.BinData(:,1);
+                semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
+                xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
+                xlabel('wavelength (nm)'); ylabel('Spectral radiance')
+                obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
+            end
+            function FindCoordinates(obj,handles,eventdata)
+                coordinates = eventdata.IntersectionPoint(1:2);
+                x = coordinates(1); y = coordinates(2);
+                idx = min(obj.handles.selectedFiles);
+                time = obj.DataStorage{idx}.BinData(:,1);
+                axes(obj.handles.axes5); hold off;
+                [~,t_idx] = min(abs(x-time));
+                children = get(gca,'children');
+                if length(children) > 2
+                    delete(children(1));
+                end
+                xline(time(t_idx)); hold off;
+                axes(obj.handles.SpectrumAxis); hold off;
+                Spectrum = obj.DataStorage{idx}.BinData(t_idx,2:end);
+                lambda = obj.DataStorage{idx}.GetWavelength();
+                plot(lambda,Spectrum,'ok'); hold on
+                [Ybb,T,eT,E,eE] = obj.DataStorage{idx}.FetchBBFit(t_idx);
+                plot(lambda,Ybb,'r');
+                Text = sprintf('Temp = %2.0f +/- %2.0f \n E = %2.3f +/- %2.3f',T,eT,E,eE);
+                legend({'Data',Text},'Position',[0.175,0.80,0,0]); hold off;
+                
+            end
             function SaveAsTxt(obj)
                 saveSettings = struct();
                 switch get(obj.handles.RadSave,'Checked')
@@ -190,6 +223,12 @@ classdef MainPMTData < handle
                     case 'off'
                         saveSettings.Emissivity = 0;
                 end
+                switch get(obj.handles.SpectrumSave,'Checked')
+                    case 'on'
+                        saveSettings.Spectrum = 1;
+                    case 'off'
+                        saveSettings.Spectrum = 0;
+                end
                 WD = pwd();
                 cd(obj.filePath);
                 [SaveFile,SavePath] = uiputfile('*.txt','Select Save File Destination');
@@ -202,6 +241,11 @@ classdef MainPMTData < handle
                 end
                 if saveSettings.Emissivity
                     obj.SaveEmissivity(SaveFile,SavePath);
+                end
+                if saveSettings.Spectrum
+                    for idx = 1:length(obj.fileNames)
+                        obj.SaveSpecRad(SavePath,idx);
+                    end
                 end
             end
             function AddPDVData(obj,Data,Names)
@@ -303,6 +347,37 @@ classdef MainPMTData < handle
                     hdr2 = [hdr2,'ns','ratio','ratio'];
                     hdr3 = [hdr3, obj.fileNames{i},obj.fileNames{i},obj.fileNames{i}];
                     save_data = [obj.DataStorage{i}.BinData(:,1).*1E9,obj.DataStorage{i}.binGray.Emissivity',obj.DataStorage{i}.binGray.EmissivityError'];
+                    full_save{i} = save_data;
+                end
+                fmt = repmat('%s\t ', 1, length(hdr1));
+                fmt(end:end+1) = '\n';
+                %open save file and write headers
+                fid = fopen(fullfile(sPath,sName), 'w');
+                fprintf(fid, fmt, hdr1{:});
+                fprintf(fid,fmt, hdr2{:});
+                fprintf(fid,fmt, hdr3{:});
+                fclose(fid);
+                %now insert data vector
+                dlmwrite(fullfile(sPath,sName),full_save,'-append','delimiter','\t');
+        end
+        function SaveSpecRad(obj,sPath,idx)
+            %specific to index file, since composite save cannot be done
+            %yet
+            %create the name, intention to be 'filename_SpecRad.txt'
+            sName = strsplit(obj.fileNames{idx},'.tdms'); sName = sName{1};
+            sName = sprintf('%s_SpecRad.txt',sName);
+            time = obj.DataStorage{idx}.BinData(:,1).*1E9;
+            lambda = obj.DataStorage{idx}.GetWavelength();
+            specrad = obj.DataStorage{idx}.BinData(:,2:end);
+                hdr1 = {}; hdr2 = {}; hdr3 = {};
+                hdr1 = [hdr1,'wavelength']; hdr2 = [hdr2,'nm'];
+                hdr3 = [hdr3, sName];
+                full_save{1} = lambda;
+                for i = 2:length(time)
+                    hdr1 = [hdr1,'spectral radiance'];
+                    hdr2 = [hdr2,'W/sr-m^3'];
+                    hdr3 = [hdr3, sprintf('%f ns',time(i))];
+                    save_data = [specrad(i,:)]';
                     full_save{i} = save_data;
                 end
                 fmt = repmat('%s\t ', 1, length(hdr1));

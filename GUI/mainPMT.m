@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 06-Jan-2020 12:57:50
+% Last Modified by GUIDE v2.5 24-Jan-2020 13:56:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -139,6 +139,8 @@ tabGroups = handles.tabManager.TabGroups;
 for tgi=1:length(tabGroups)
     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
 end
+%set callback
+%handles.axes5.ButtonDownFcn=@(hObject,eventdata)mainPMT('axes5_ButtonDownFcn',hObject,eventdata,guidata(hObject));
 %creates the mainPMTData instance that proceeds to handle most of the
 %loaded and analyzed data thereafter.
 handles.MainData = MainPMTData(handles.PMTFigure);
@@ -179,6 +181,7 @@ try
 handles.MainData.RadianceSemiLogPlot(handles.selectedIndex);
 handles.MainData.TempPlot(handles.selectedIndex);
 handles.MainData.EmissivityPlot(handles.selectedIndex);
+handles.MainData.SpectrumPlot(handles.selectedIndex);
 catch
 end
 guidata(hObject,handles);
@@ -606,13 +609,25 @@ function TempSave_Callback(hObject, eventdata, handles)
 % hObject    handle to TempSave (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+SaveListClick(hObject)
+guidata(hObject,handles);
 
 % --------------------------------------------------------------------
 function EmissivitySave_Callback(hObject, eventdata, handles)
 % hObject    handle to EmissivitySave (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+SaveListClick(hObject)
+guidata(hObject,handles);
+
+% --------------------------------------------------------------------
+function SpectrumSave_Callback(hObject, eventdata, handles)
+% hObject    handle to SpectrumSave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SaveListClick(hObject)
+guidata(hObject,handles);
+
 
 function SaveListClick(hObject)
     switch get(hObject,'Checked')
@@ -677,3 +692,23 @@ function TempAVG_Button_Callback(hObject, eventdata, handles)
 handles.selectedFiles = get(handles.FileList,'Value');
 handles.selectedIndex = min(handles.selectedFiles);
 handles.MainData.TempAverage(handles.selectedFiles);
+
+
+% --- Executes on mouse press over axes background.
+function axes5_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to axes5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+coordinates = get(handles.axes5,'CurrentPoint');
+coordinates = coordinates(1,1:2);
+disp(coordinates)
+
+function RadAxis_ButtonDownFcn(hObject,eventdata,handles)
+
+function SpectrumAxis_ButtonDownFcn(hObject,eventdata,handles)
+disp('Clicked')
+
+
+
+

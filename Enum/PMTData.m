@@ -28,12 +28,25 @@ classdef PMTData < handle
             obj.binGray = obj.TempFit();
         end
     end
+    methods(Access = public)
+        function [lambda] = GetWavelength(obj)
+            lambda = obj.Wavelength;
+        end
+        function [Ybb,T,eT,E,eE] = FetchBBFit(obj,idx)
+            grayData = obj.TempFitAtTime(idx);
+            Ybb = grayData.Ybb; T = grayData.Temp;
+            eT = grayData.TempError; E = grayData.Emissivity;
+            eE = grayData.EmissivityError;
+            
+        end
+    end
 methods(Access = private) 
         function TDMSshort( obj )
             %Isolate time and flip voltage
             Res = obj.FileData.binRes;
             Time = obj.FileData.Time;
             Volt = obj.FileData.Volt;
+            ExcChannels = obj.FileData.ExcChannels;
             %Baseline correction from the data in negative time
                 for w=1:32
                     baseline=mean(Volt([1:length(Time)*.04],w));
@@ -95,6 +108,12 @@ methods(Access = private)
 
                 %Radiance calibration, filter, and voltage to amps conversions
                 for q=1:size(binSpecRad,1)
+                    %{
+                    if isempty(find(q == ExcChannels,1))
+                        binSpecRad(q,:)=binSpecRad(q,:).*obj.FileData.UnitConv'./filter./50;
+                    else
+                    %}
+                        %binSpecRad(q,:) = NaN;
                     binSpecRad(q,:)=binSpecRad(q,:).*obj.FileData.UnitConv'./filter./50;
                 end
             %{
@@ -156,7 +175,30 @@ methods(Access = private)
                 grayData.Emissivity(grayData.TempError>Bounds*grayData.Temp)=NaN;
                 grayData.Temp(grayData.TempError>Bounds*grayData.Temp)=NaN;
         end
-        
+        function grayData = TempFitAtTime(obj,idx)
+            grayData = struct();
+            Tstart = 1500;
+            W = obj.Wavelength.*1E-9;
+            R = obj.BinData(idx,2:33); %spectrum at particular time
+            s = fitoptions('Method','NonlinearLeastSquares',... %fit method
+               'Lower',[0,1500],...   %lower bound for emissivity and temp
+               'Upper',[1,1e4],...    %upper bound for emissivity and temp
+               'Startpoint',[0.1 Tstart]);   %Starting point
+             bb=fittype('E*2*6.63e-34*3e8^2/wavelength^5/(exp((6.63e-34*3e8)/(wavelength*1.38e-23*T))-1)',...
+                'independent',{'wavelength'},'coefficients',{'E','T'},'options',s);  %blackbody fitting model
+                Rad = R(:);
+                fitteddata=fit(W,Rad,bb);  %fit results
+                Ybb = feval(fitteddata, W);
+                grayData.Ybb = Ybb;
+                fit_coeffs=coeffvalues(fitteddata);
+                grayData.Emissivity=fit_coeffs(1);
+                grayData.Temp=fit_coeffs(2);
+
+                %Get 95% confidence interval
+                conf=confint(fitteddata);
+                grayData.EmissivityError=conf(2,1)-grayData.Emissivity;
+                grayData.TempError=conf(2,2)-grayData.Temp;
+            end
+        end
 end
 
-end
