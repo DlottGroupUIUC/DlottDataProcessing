@@ -46,7 +46,7 @@ methods(Access = private)
             Res = obj.FileData.binRes;
             Time = obj.FileData.Time;
             Volt = obj.FileData.Volt;
-            ExcChannels = obj.FileData.ExcChannels;
+            ExcChannels = str2double(obj.FileData.ExcChannels);
             %Baseline correction from the data in negative time
                 for w=1:32
                     baseline=mean(Volt([1:length(Time)*.04],w));
@@ -133,13 +133,15 @@ methods(Access = private)
                 obj.BinData = zeros(128,33);
                 obj.BinData(1:length(binTime),1)=binTime;
                 obj.BinData(1:length(binTime),[2:33])=binSpecRad;
-                %{
-                if ~isempty(obj.FileData.ExcChannels{1})
-                    for i = 1:length(obj.FileData.ExcChannels)
-                        obj.BinData(:,str2double(obj.FileData.ExcChannels{i})+1) = NaN;
+                %sift columns for excluded channels
+                if ~isnan(ExcChannels)
+                    for i = 2:length(obj.BinData(1,:))
+                      if ~isempty(find(i-1==ExcChannels))
+                          obj.BinData(:,i) = NaN(length(obj.BinData(:,1)),1); 
+                          %populate column with NaN
+                      end
                     end
                 end
-                %}
                 %Total Radiance
                 obj.binRad = NaN(128,1);
                 obj.binRad(1:length(binTime)) = sum(binSpecRad,2)*1e-9;
@@ -161,7 +163,8 @@ methods(Access = private)
                 'independent',{'wavelength'},'coefficients',{'E','T'},'options',s);  %blackbody fitting model
             for k = 1:size(R,1)
                 Rad = R(k,:)';
-                fitteddata=fit(W,Rad,bb);  %fit results
+                idxValid = ~isnan(Rad);
+                fitteddata=fit(W(idxValid),Rad(idxValid),bb);  %fit results
                 fit_coeffs=coeffvalues(fitteddata);
                 grayData.Emissivity(k)=fit_coeffs(1);
                 grayData.Temp(k)=fit_coeffs(2);
@@ -187,7 +190,9 @@ methods(Access = private)
              bb=fittype('E*2*6.63e-34*3e8^2/wavelength^5/(exp((6.63e-34*3e8)/(wavelength*1.38e-23*T))-1)',...
                 'independent',{'wavelength'},'coefficients',{'E','T'},'options',s);  %blackbody fitting model
                 Rad = R(:);
-                fitteddata=fit(W,Rad,bb);  %fit results
+                idxValid = ~isnan(Rad);
+                fitteddata=fit(W(idxValid),Rad(idxValid),bb);  %fit results
+
                 Ybb = feval(fitteddata, W);
                 grayData.Ybb = Ybb;
                 fit_coeffs=coeffvalues(fitteddata);

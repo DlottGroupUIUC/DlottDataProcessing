@@ -77,7 +77,6 @@ classdef MainPMTData < handle
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             obj.DataStorage{Index} = PMTData(FileData,0);
             [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
-            
         end
         function BinPMTData(obj,idx)
             if isempty(obj.UnitConv)

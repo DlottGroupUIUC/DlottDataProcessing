@@ -20,4 +20,6 @@ time=data_3d(:,1,:);
 t=permute(time,[1,3,2]);
 
 AVG_Spec_Rad=mean(data_3d,3);
-AVG_Rad = sum(AVG_Spec_Rad,2)*1e-9;
+idxValid = ~isnan(AVG_Spec_Rad(2,:));
+Corr_Spec_Rad = AVG_Spec_Rad(:,idxValid);
+AVG_Rad = sum(Corr_Spec_Rad,2)*1e-9;
