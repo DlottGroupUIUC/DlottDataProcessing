@@ -120,6 +120,10 @@ classdef MainPMTData < handle
             switch eFiltidx
                 case 5
                     FileData.eFilt = obj.eFilter(:,2).*obj.eFilter(:,4);
+                case 6
+                    FileData.eFilt = obj.eFilter(:,3).*obj.eFilter(:,4);
+                case 7
+                    FileData.eFilt = obj.eFilter(:,2).*obj.eFilter(:,3).*obj.eFilter(:,4);
                 otherwise
                     FileData.eFilt = obj.eFilter(:,eFiltidx);
             end

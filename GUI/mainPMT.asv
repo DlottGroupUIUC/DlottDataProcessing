@@ -338,7 +338,6 @@ function peakButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.riseButton,'Value',0);
 set(handles.PDVdelayButton,'Value',0);
-set(handles.ManualDelay,'Value',0);
 % Hint: get(hObject,'Value') returns toggle state of peakButton
 
 
@@ -349,7 +348,6 @@ function riseButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.peakButton,'Value',0);
 set(handles.PDVdelayButton,'Value',0);
-set(handles.ManualDelay,'Value',0);
 % Hint: get(hObject,'Value') returns toggle state of riseButton
 
 
@@ -360,7 +358,6 @@ function PDVdelayButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.peakButton,'Value',0);
 set(handles.riseButton,'Value',0);
-set(handles.ManualDelay,'Value',0);
 % Hint: get(hObject,'Value') returns toggle state of PDVdelayButton
 
 % --- Executes on button press in ManualDelay.
@@ -370,7 +367,7 @@ function ManualDelay_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(handles.peakButton,'Value',0);
 set(handles.riseButton,'Value',0);
-set(handles.PDVdelayButton,'Value',0);
+s
 % Hint: get(hObject,'Value') returns toggle state of ManualDelay
 
 

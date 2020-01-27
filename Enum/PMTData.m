@@ -4,12 +4,12 @@ classdef PMTData < handle
         BinData
         binRad
         binGray;
-        Tolerance = 90;
+        Tolerance = 95;
+        Delay
     end
     properties(Access = private)
         DataArray
         FileData
-        Delay
         Wavelength=[444.690000000000,454.630000000000,464.250000000000,473.440000000000,483.560000000000,492.750000000000,500.810000000000,...
             509.500000000000,518.880000000000,529,539.940000000000,551.880000000000,561.500000000000,568.380000000000,575.560000000000,...
             583.130000000000,591.060000000000,599.440000000000,608.250000000000,617.500000000000,627.310000000000,637.750000000000,648.810000000000,...
@@ -39,6 +39,7 @@ classdef PMTData < handle
             eE = grayData.EmissivityError;
             
         end
+            
     end
 methods(Access = private) 
         function TDMSshort( obj )
@@ -203,7 +204,8 @@ methods(Access = private)
                 conf=confint(fitteddata);
                 grayData.EmissivityError=conf(2,1)-grayData.Emissivity;
                 grayData.TempError=conf(2,2)-grayData.Temp;
-            end
+        end
+            
         end
 end
 
