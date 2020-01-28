@@ -16,6 +16,7 @@ classdef MainPMTData < handle
     properties(Access = public)
         fileNames;
         filePath;
+        selectedFiles;
     end
     methods
         function obj = MainPMTData(mainFig)
@@ -207,10 +208,10 @@ classdef MainPMTData < handle
                 xlabel('wavelength (nm)'); ylabel('Spectral radiance')
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
             end
-            function FindCoordinates(obj,handles,eventdata)
+            function FindCoordinates(obj,~,eventdata)
                 coordinates = eventdata.IntersectionPoint(1:2);
                 x = coordinates(1); y = coordinates(2);
-                idx = min(obj.handles.selectedFiles);
+                idx = min(obj.selectedFiles);
                 time = obj.DataStorage{idx}.BinData(:,1);
                 axes(obj.handles.axes5); hold off;
                 [~,t_idx] = min(abs(x-time));

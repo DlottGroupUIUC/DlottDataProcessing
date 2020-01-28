@@ -198,6 +198,7 @@ try
 idx = eventdata.Indices(:,1); %retrieve selected row.
 handles.selectedIndex = min(idx);
 handles.selectedFiles = idx;
+handles.MainData.selectedFiles = idx;
 guidata(hObject,handles);
 catch
 end
