@@ -195,8 +195,9 @@ function FileList_CellSelectionCallback(hObject, eventdata, handles)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
 try
-idx = eventdata.Indices(1); %retrieve selected row.
-handles.selectedIndex = idx;
+idx = eventdata.Indices(:,1); %retrieve selected row.
+handles.selectedIndex = min(idx);
+handles.selectedFiles = idx;
 guidata(hObject,handles);
 catch
 end
@@ -349,8 +350,9 @@ try handles.MainData;
 catch
     LoadTab_Callback(hObject,eventdata,handles);
 end
-for idx = handles.selectedFiles(1:end)
-    handles.MainData.BinPMTData(idx);
+idx = handles.selectedFiles(1:end);
+for i = 1:length(idx)
+    handles.MainData.BinPMTData(idx(i),get(handles.ManualDelay,'Value'));
 end
 guidata(hObject,handles);
 
@@ -408,8 +410,8 @@ function FileList_CellEditCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %upon edit re-bin data with new delay
 handles.selectedIndex = eventdata.Indices(1); %find current cell that was changed
-BinPMTData(obj,handles.selectedIndex,1)
-disp('changed!');
+handles.MainData.BinPMTData(handles.selectedIndex,1)
+guidata(hObject,handles);
 
 function binStart_Callback(hObject, eventdata, handles)
 % hObject    handle to binStart (see GCBO)
@@ -738,7 +740,6 @@ function TempAVG_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to TempAVG_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.selectedFiles = get(handles.FileList,'Value');
 handles.selectedIndex = min(handles.selectedFiles);
 handles.MainData.TempAverage(handles.selectedFiles);
 

@@ -18,6 +18,7 @@ classdef PMTData < handle
     methods
         function obj = PMTData(FileData,bool)
             obj.FileData = FileData;
+            obj.Delay = FileData.Delay;
             switch bool
                 case 1 
                     obj.TDMSshort()

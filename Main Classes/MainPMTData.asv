@@ -63,23 +63,28 @@ classdef MainPMTData < handle
         function TempAverage(obj,Files)
             for i = 1:length(Files)
                 Data(:,:,i) = obj.DataStorage{Files(i)}.BinData;
+                Delay(i) = obj.DataStorage{Files(i)}.Delay;
             end
             idx = find(contains(obj.fileNames,'Averaged Data'));
+            TableData = get(obj.handles.FileList,'data');
             if ~isempty(idx)
                 Index = idx;
             else
                 Index = length(obj.fileNames)+1;
                 obj.fileNames{Index} = 'Averaged Data';
-                set(obj.handles.FileList,'String',obj.fileNames);
+                TableData(end+1,1) = obj.fileNames{Index};
             end
-            FileData.Delay = 0;
+            FileData.Delay = mean(Delay);
             FileData.binRes = str2double(get(obj.handles.binRes,'String'));
             FileData.binStart = str2double(get(obj.handles.binStart,'String'));
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             obj.DataStorage{Index} = PMTData(FileData,0);
             [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
+            TableData() = obj.fileNames; 
+            TableData{end,2} = FileData.Delay;
+            set(obj.handles.FileList,'data',TableData);
         end
-        function BinPMTData(obj,idx)
+        function BinPMTData(obj,idx,ManualDelay)
             if isempty(obj.UnitConv)
                 obj.Calibrate();
             end
@@ -113,7 +118,22 @@ classdef MainPMTData < handle
             DataArray = reshape(DataArray,length(DataArray)/33,33);
             Time = DataArray(:,5); Volt = DataArray.*-1;
             Volt(:,5) = [];
-            FileData.Delay = obj.FindPeakDelay(Time,Volt);
+            switch ManualDelay
+                case 0 %called from an automated setting
+                    FileData.Delay = obj.FindPeakDelay(Time,Volt);
+                case 1 %manually input
+                    delayData = get(obj.handles.FileList,'data');
+                    delay = delayData{idx,2};
+                    switch class(delay)
+                        case 'char'
+                            delay = convertCharsToStrings(delay);
+                            delay = str2double(delay);
+                        otherwise
+                            delay = double(delay);
+                    end
+                    FileData.Delay = delay.*1E-9; %convert to s
+            end
+                    
             delayData = get(obj.handles.FileList,'data');
             delayData{idx,2} = uint16(FileData.Delay*1E9);
             set(obj.handles.FileList,'data',delayData);
@@ -142,13 +162,6 @@ classdef MainPMTData < handle
             obj.RadianceSemiLogPlot(idx);
             set(obj.handles.runGray,'Enable','on');
             set(obj.handles.runTempAll,'Enable','on');
-        end
-        function ModifyPMTDelay(obj,idx)
-            delayData = get(obj.handles.FileList,'data');
-            obj.DataStorage{idx}.NewDelay(delayData{idx,2}); %set new delay value
-            %then bin data
-            obj.RadianceSemiLogPlot(idx)
-            %plot the new data
         end
         function RadiancePlot(obj,idx)
             axes(obj.handles.RadAxis);
@@ -267,7 +280,7 @@ classdef MainPMTData < handle
             end
             function BinAll(obj)
                     for i = 1:length(obj.fileNames)
-                        obj.BinPMTData(i);
+                        obj.BinPMTData(i,get(obj.handles.ManualDelay,'Value'));
                     end
             end
             

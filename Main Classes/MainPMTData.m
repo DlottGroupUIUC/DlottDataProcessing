@@ -63,21 +63,26 @@ classdef MainPMTData < handle
         function TempAverage(obj,Files)
             for i = 1:length(Files)
                 Data(:,:,i) = obj.DataStorage{Files(i)}.BinData;
+                Delay(i) = obj.DataStorage{Files(i)}.Delay;
             end
             idx = find(contains(obj.fileNames,'Averaged Data'));
+            TableData = get(obj.handles.FileList,'data');
             if ~isempty(idx)
                 Index = idx;
             else
                 Index = length(obj.fileNames)+1;
                 obj.fileNames{Index} = 'Averaged Data';
-                set(obj.handles.FileList,'String',obj.fileNames);
+                TableData(end+1,1) = {obj.fileNames{Index}};
+                Index = length(TableData(:,1));
             end
-            FileData.Delay = 0;
+            FileData.Delay = mean(Delay);
             FileData.binRes = str2double(get(obj.handles.binRes,'String'));
             FileData.binStart = str2double(get(obj.handles.binStart,'String'));
             FileData.binEnd = str2double(get(obj.handles.binEnd,'String'));
             obj.DataStorage{Index} = PMTData(FileData,0);
             [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
+            TableData(Index,2) = {uint16(FileData.Delay.*1E9)};
+            set(obj.handles.FileList,'data',TableData);
         end
         function BinPMTData(obj,idx,ManualDelay)
             if isempty(obj.UnitConv)
@@ -113,12 +118,20 @@ classdef MainPMTData < handle
             DataArray = reshape(DataArray,length(DataArray)/33,33);
             Time = DataArray(:,5); Volt = DataArray.*-1;
             Volt(:,5) = [];
-            switch obj.ManualDelay
+            switch ManualDelay
                 case 0 %called from an automated setting
                     FileData.Delay = obj.FindPeakDelay(Time,Volt);
                 case 1 %manually input
                     delayData = get(obj.handles.FileList,'data');
-                    FileData.Delay = delayData{idx,2}.*1E-9; %convert to s
+                    delay = delayData{idx,2};
+                    switch class(delay)
+                        case 'char'
+                            delay = convertCharsToStrings(delay);
+                            delay = str2double(delay);
+                        otherwise
+                            delay = double(delay);
+                    end
+                    FileData.Delay = delay.*1E-9; %convert to s
             end
                     
             delayData = get(obj.handles.FileList,'data');

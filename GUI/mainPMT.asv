@@ -407,11 +407,9 @@ function FileList_CellEditCallback(hObject, eventdata, handles)
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
 %upon edit re-bin data with new delay
-
-%just debugging code
-disp('changed!');
 handles.selectedIndex = eventdata.Indices(1); %find current cell that was changed
-BinPMTData(obj,idx,ManualDelay)
+handles.MainData.BinPMTData(handles.selectedIndex,1)
+guidata(hObject,handles);
 
 function binStart_Callback(hObject, eventdata, handles)
 % hObject    handle to binStart (see GCBO)
@@ -740,7 +738,8 @@ function TempAVG_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to TempAVG_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.selectedFiles = get(handles.FileList,'Value');
+handles.selectedFiles = get(handles.FileList,'data');
+handles.selectedFiles = 
 handles.selectedIndex = min(handles.selectedFiles);
 handles.MainData.TempAverage(handles.selectedFiles);
 
