@@ -153,7 +153,7 @@ methods(Access = private)
         end
         function grayData = TempFit(obj)
             grayData = struct();
-            Tstart = 1500;
+            Tstart = 3000; %initial temp guess
             W = obj.Wavelength.*1E-9;
             R = obj.BinData(:,2:33);
             s = fitoptions('Method','NonlinearLeastSquares',... %fit method
