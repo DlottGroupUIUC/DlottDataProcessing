@@ -79,7 +79,7 @@ classdef MainPMTData < handle
             obj.DataStorage{Index} = PMTData(FileData,0);
             [obj.DataStorage{Index}.BinData,obj.DataStorage{Index}.binRad] = AVG_Data(Data);
         end
-        function BinPMTData(obj,idx,ManualDelay)
+        function BinPMTData(obj,idx)
             if isempty(obj.UnitConv)
                 obj.Calibrate();
             end
@@ -113,14 +113,7 @@ classdef MainPMTData < handle
             DataArray = reshape(DataArray,length(DataArray)/33,33);
             Time = DataArray(:,5); Volt = DataArray.*-1;
             Volt(:,5) = [];
-            switch obj.ManualDelay
-                case 0 %called from an automated setting
-                    FileData.Delay = obj.FindPeakDelay(Time,Volt);
-                case 1 %manually input
-                    delayData = get(obj.handles.FileList,'data');
-                    FileData.Delay = delayData{idx,2}.*1E-9; %convert to s
-            end
-                    
+            FileData.Delay = obj.FindPeakDelay(Time,Volt);
             delayData = get(obj.handles.FileList,'data');
             delayData{idx,2} = uint16(FileData.Delay*1E9);
             set(obj.handles.FileList,'data',delayData);
@@ -149,6 +142,13 @@ classdef MainPMTData < handle
             obj.RadianceSemiLogPlot(idx);
             set(obj.handles.runGray,'Enable','on');
             set(obj.handles.runTempAll,'Enable','on');
+        end
+        function ModifyPMTDelay(obj,idx)
+            delayData = get(obj.handles.FileList,'data');
+            obj.DataStorage{idx}.NewDelay(delayData{idx,2}); %set new delay value
+            %then bin data
+            obj.RadianceSemiLogPlot(idx)
+            %plot the new data
         end
         function RadiancePlot(obj,idx)
             axes(obj.handles.RadAxis);
@@ -267,7 +267,7 @@ classdef MainPMTData < handle
             end
             function BinAll(obj)
                     for i = 1:length(obj.fileNames)
-                        obj.BinPMTData(i,get(obj.handles.ManualDelay,'Value'));
+                        obj.BinPMTData(i);
                     end
             end
             

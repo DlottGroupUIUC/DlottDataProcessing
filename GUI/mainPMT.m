@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 27-Jan-2020 11:08:26
+% Last Modified by GUIDE v2.5 28-Jan-2020 12:36:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -161,7 +161,7 @@ function varargout = mainPMT_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
+%{
 % --- Executes on selection change in FileList.
 function FileList_Callback(hObject, eventdata, handles)
 % hObject    handle to FileList (see GCBO)
@@ -185,7 +185,30 @@ handles.MainData.SpectrumPlot(handles.selectedIndex);
 catch
 end
 guidata(hObject,handles);
+%}
 
+
+% --- Executes when selected cell(s) is changed in FileList.
+function FileList_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to FileList (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+try
+idx = eventdata.Indices(1); %retrieve selected row.
+handles.selectedIndex = idx;
+guidata(hObject,handles);
+catch
+end
+try
+%plotting routines in MainData structure.
+handles.MainData.RadianceSemiLogPlot(handles.selectedIndex);
+handles.MainData.TempPlot(handles.selectedIndex);
+handles.MainData.EmissivityPlot(handles.selectedIndex);
+handles.MainData.SpectrumPlot(handles.selectedIndex);
+catch
+end
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function FileList_CreateFcn(hObject, eventdata, handles)
@@ -373,7 +396,20 @@ set(handles.riseButton,'Value',0);
 set(handles.PDVdelayButton,'Value',0);
 % Hint: get(hObject,'Value') returns toggle state of ManualDelay
 
-
+% --- Executes when entered data in editable cell(s) in FileList.
+function FileList_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to FileList (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+%upon edit re-bin data with new delay
+handles.selectedIndex = eventdata.Indices(1); %find current cell that was changed
+BinPMTData(obj,handles.selectedIndex,1)
+disp('changed!');
 
 function binStart_Callback(hObject, eventdata, handles)
 % hObject    handle to binStart (see GCBO)
@@ -721,6 +757,10 @@ function RadAxis_ButtonDownFcn(hObject,eventdata,handles)
 
 function SpectrumAxis_ButtonDownFcn(hObject,eventdata,handles)
 disp('Clicked')
+
+
+
+
 
 
 
