@@ -176,13 +176,21 @@ methods(Access = private)
                 grayData.Temp(k)=fit_coeffs(2);
 
                 %Get 95% confidence interval
-                conf=confint(fitteddata);
-                grayData.EmissivityError(k)=conf(2,1)-grayData.Emissivity(k);
-                grayData.TempError(k)=conf(2,2)-grayData.Temp(k);
-            end
                 Bounds = (1-obj.Tolerance/100);
+                conf=confint(fitteddata);
+                grayData.EmissivityError(k)=(conf(2,1)-conf(1,1))/2;
+                grayData.TempError(k)=(conf(2,2)-conf(1,2))/2;
+                if (Bounds*grayData.Temp(k)) < grayData.TempError(k)
+                    grayData.Temp(k) = NaN;
+                    grayData.Emissivity(k) = NaN;
+                end
+            end
+                % sift out data where confidence interval is greater than
+                % specified confidence bound
+                %{
                 grayData.Emissivity(grayData.TempError>Bounds*grayData.Temp)=NaN;
                 grayData.Temp(grayData.TempError>Bounds*grayData.Temp)=NaN;
+                %}
         end
         function grayData = TempFitAtTime(obj,idx)
             grayData = struct();
@@ -206,6 +214,7 @@ methods(Access = private)
                 grayData.Temp=fit_coeffs(2);
 
                 %Get 95% confidence interval
+                Bounds = (1-obj.Tolerance/100);
                 conf=confint(fitteddata);
                 grayData.EmissivityError=conf(2,1)-grayData.Emissivity;
                 grayData.TempError=conf(2,2)-grayData.Temp;

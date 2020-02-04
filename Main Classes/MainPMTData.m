@@ -200,12 +200,17 @@ classdef MainPMTData < handle
             end
             function SpectrumPlot(obj,idx)
                 axes(obj.handles.axes5); hold off;
+                Radiance = obj.DataStorage{idx}.binRad;
                 Temp = obj.DataStorage{idx}.binGray.Temp;
                 TempError = obj.DataStorage{idx}.binGray.TempError;
                 time = obj.DataStorage{idx}.BinData(:,1);
-                semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
                 xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
-                xlabel('wavelength (nm)'); ylabel('Spectral radiance')
+                yyaxis left; hold off;
+                semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
+                yyaxis right; hold off;
+                semilogx(time,Radiance,'k'); ylim([0,max(Radiance)]);
+                xlabel('time (ns)'); ylabel('Temperature'); hold off;
+                yyaxis left;
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
             end
             function FindCoordinates(obj,~,eventdata)
@@ -226,8 +231,9 @@ classdef MainPMTData < handle
                 plot(lambda,Spectrum,'ok'); hold on
                 [Ybb,T,eT,E,eE] = obj.DataStorage{idx}.FetchBBFit(t_idx);
                 plot(lambda,Ybb,'r');
-                Text = sprintf('Temp = %2.0f +/- %2.0f \n E = %2.3f +/- %2.3f',T,eT,E,eE);
+                Text = sprintf('time = %2.0f \n Temp = %2.0f +/- %2.0f \n E = %2.3f +/- %2.3f',time(t_idx).*1E9,T,eT,E,eE);
                 legend({'Data',Text},'Position',[0.175,0.80,0,0]); hold off;
+                ylabel('spectral radiance');
                 
             end
             function SaveAsTxt(obj)
