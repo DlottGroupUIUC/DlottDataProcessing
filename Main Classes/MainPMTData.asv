@@ -177,7 +177,6 @@ classdef MainPMTData < handle
             axes(obj.handles.RadAxis);
             time = obj.DataStorage{idx}.BinData(:,1);
             Radiance = obj.DataStorage{idx}.binRad;
-            yyaxis left
             semilogx(time,Radiance); xlim([1E-9,5E-7]);
             text = sprintf('Radiance Plot of %s',obj.fileNames{idx});
             title(text);
@@ -296,16 +295,17 @@ classdef MainPMTData < handle
             end
             function PlotPDV(obj,Pidx,Ridx)
                 PDV_Data = obj.PDVData{Pidx};
-                try
-                   Delay = obj.DataStorage{Ridx}.Delay;
-                catch
-                    Delay = 0;
-                end
+                Delay = obj.DataStorage{Ridx}.Delay;
                 axes(obj.handles.RadAxis);
+                Ax1 = gca;
+                Ax2 = axes('Position',Ax1.Position,...
+                    'XAxisLocation','top',...
+                    'YAxisLocation','right',...
+                    'Color','r');
+                hold on;
                 %}
                 Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                yyaxis right;
-                semilogx(Time,Velocity,'Color','k');
+                semilogx(Time,Velocity,'Parent',Ax2,'Color','r');
                 xlim([1E-9,2E-6]);
             end
             

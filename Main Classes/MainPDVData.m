@@ -237,9 +237,8 @@ classdef MainPDVData < handle
         end
         function Send2PMT(obj)
             PassedData = obj.DataStorage;
-            PMThandle = mainPMT;
-            MainData = MainPMTData(PMThandle);
-            MainData.AddPDVData(PassedData,obj.handles.fileNames);
+            PMThandle = mainPMT(PassedData,obj.handles.fileNames);
+            %MainData.AddPDVData(PassedData,obj.handles.fileNames);
             delete(obj.handles.figure1);
             delete(obj);
         end
