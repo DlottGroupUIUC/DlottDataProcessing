@@ -26,7 +26,7 @@ classdef MainPMTData < handle
                 obj.PDVData = varargin{1};
                 set(obj.handles.PDVFileList,'String',varargin{2});
                 set(obj.handles.PDVPlot_Box,'Enable','on');
-                set(obj.handles.PDVFileList,'Enable','on');
+                %set(obj.handles.PDVFileList,'Enable','on');
             end
             %Store Filter Matrix here, I didn't do it in the data object
             %because I don't want to keep opening and closing a text file
@@ -223,9 +223,7 @@ classdef MainPMTData < handle
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
             end
             function PlotPDV(obj)
-                Pidx = get(obj.handles.PDVFileList,'Value');
-                Pidx = min(Pidx);
-                PDV_Data = obj.PDVData{Pidx};
+                
                 axes(obj.handles.RadAxis); yyaxis right;
                 set(obj.handles.RadAxis.YAxis,'Color','k');
                 if get(obj.handles.PDVPlot_Box,'Value')
@@ -236,8 +234,11 @@ classdef MainPMTData < handle
                        A = cellfun(@(x) x{1},A,'UniformOutput',false);
                        B = split(obj.fileNames{Ridx},'.');B = B{1};
                        try
-                            Pidx = find(strcmp(A,B))
+                            Pidx = find(strcmp(A,B));
+                            set(obj.handles.PDVFileList,'Value',Pidx);
                        catch
+                           Pidx = get(obj.handles.PDVFileList,'Value');
+                           Pidx = min(Pidx);
                        end
                        Delay = obj.DataStorage{Ridx}.Delay;
                        
@@ -245,8 +246,9 @@ classdef MainPMTData < handle
                         Delay = 0;
                     end
                     %}
+                    PDV_Data = obj.PDVData{Pidx};
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                    Time = Time(Time<2E-7); Velocity = Velocity(Time<2E-7);
+                    Time = Time(Time<2E-8); Velocity = Velocity(Time<3E-8);
                     Velocity(Velocity > 4.5) = NaN;
                     semilogx(Time,Velocity,'linewidth',2,'Color','k');
                     xlim([1E-9,5E-7]); ylim([0,4.5]);

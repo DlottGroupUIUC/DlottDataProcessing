@@ -26,7 +26,7 @@ classdef MainPMTData < handle
                 obj.PDVData = varargin{1};
                 set(obj.handles.PDVFileList,'String',varargin{2});
                 set(obj.handles.PDVPlot_Box,'Enable','on');
-                set(obj.handles.PDVFileList,'Enable','on');
+                %set(obj.handles.PDVFileList,'Enable','on');
             end
             %Store Filter Matrix here, I didn't do it in the data object
             %because I don't want to keep opening and closing a text file
@@ -225,7 +225,7 @@ classdef MainPMTData < handle
             function PlotPDV(obj)
                 
                 axes(obj.handles.RadAxis); yyaxis right;
-                set(obj.handles.RadAxis.YAxis,'Color','k');
+                set(obj.handles.RadAxis.YAxis);
                 if get(obj.handles.PDVPlot_Box,'Value')
                     try
                        Ridx = min(obj.selectedFiles);
@@ -248,7 +248,7 @@ classdef MainPMTData < handle
                     %}
                     PDV_Data = obj.PDVData{Pidx};
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                    Time = Time(Time<2E-7); Velocity = Velocity(Time<2E-7);
+                    Time = Time(Time<5E-8); Velocity = Velocity(Time<5E-8);
                     Velocity(Velocity > 4.5) = NaN;
                     semilogx(Time,Velocity,'linewidth',2,'Color','k');
                     xlim([1E-9,5E-7]); ylim([0,4.5]);
