@@ -143,7 +143,11 @@ end
 %handles.axes5.ButtonDownFcn=@(hObject,eventdata)mainPMT('axes5_ButtonDownFcn',hObject,eventdata,guidata(hObject));
 %creates the mainPMTData instance that proceeds to handle most of the
 %loaded and analyzed data thereafter.
-handles.MainData = MainPMTData(handles.PMTFigure,varargin{1},varargin{2});
+if ~isempty(varargin)
+    handles.MainData = MainPMTData(handles.PMTFigure,varargin{1},varargin{2});
+else
+    handles.MainData = MainPMTData(handles.PMTFigure);
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -698,7 +702,7 @@ function PDVFileList_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns PDVFileList contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from PDVFileList
-
+handles.MainData.PlotPDV();
 
 % --- Executes during object creation, after setting all properties.
 function PDVFileList_CreateFcn(hObject, eventdata, handles)
@@ -766,10 +770,7 @@ function PDVPlot_Box_Callback(hObject, eventdata, handles)
 % hObject    handle to PDVPlot_Box (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if get(hObject,'Value')
-    Pidx = get(handles.PDVFileList,'Value');
-    Pidx = min(Pidx);
-    Ridx = handles.selectedIndex;
-    handles.MainData.PlotPDV(Pidx,Ridx);
-end
+
+    handles.MainData.PlotPDV();
+
 % Hint: get(hObject,'Value') returns toggle state of PDVPlot_Box

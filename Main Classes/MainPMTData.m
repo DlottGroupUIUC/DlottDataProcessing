@@ -25,6 +25,8 @@ classdef MainPMTData < handle
             if length(varargin)
                 obj.PDVData = varargin{1};
                 set(obj.handles.PDVFileList,'String',varargin{2});
+                set(obj.handles.PDVPlot_Box,'Enable','on');
+                set(obj.handles.PDVFileList,'Enable','on');
             end
             %Store Filter Matrix here, I didn't do it in the data object
             %because I don't want to keep opening and closing a text file
@@ -177,8 +179,10 @@ classdef MainPMTData < handle
             axes(obj.handles.RadAxis);
             time = obj.DataStorage{idx}.BinData(:,1);
             Radiance = obj.DataStorage{idx}.binRad;
-            yyaxis left
-            semilogx(time,Radiance); xlim([1E-9,5E-7]);
+            yyaxis left; Ax = gca; set(Ax.YAxis,'Color','k');
+            semilogx(time,Radiance,'linewidth',3,'Color','r'); xlim([1E-9,5E-7]);
+            ylim([0,max(Radiance)*1.05])
+            ylabel('total radiance (W/sr-m^2)','Color','r'); xlabel('time (s)')
             text = sprintf('Radiance Plot of %s',obj.fileNames{idx});
             title(text);
         end
@@ -216,6 +220,30 @@ classdef MainPMTData < handle
                 xlabel('time (ns)'); ylabel('Temperature'); hold off;
                 yyaxis left;
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
+            end
+            function PlotPDV(obj)
+                Pidx = get(obj.handles.PDVFileList,'Value');
+                Pidx = min(Pidx);
+                PDV_Data = obj.PDVData{Pidx};
+                axes(obj.handles.RadAxis); yyaxis right;
+                set(obj.handles.RadAxis.YAxis,'Color','k');
+                if get(obj.handles.PDVPlot_Box,'Value')
+                    try
+                       Ridx = min(obj.selectedFiles);
+                       Delay = obj.DataStorage{Ridx}.Delay;
+                    catch
+                        Delay = 0;
+                    end
+                    %}
+                    Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
+                    Time = Time(Time<2E-7); Velocity = Velocity(Time<2E-7);
+                    Velocity(Velocity > 4.5) = NaN;
+                    semilogx(Time,Velocity,'linewidth',2,'Color','k');
+                    xlim([1E-9,5E-7]); ylim([0,4.5]);
+                    ylabel('velocity (km/s)');
+                else
+                    plot(NaN,NaN);
+                end
             end
             function FindCoordinates(obj,~,eventdata)
                 coordinates = eventdata.IntersectionPoint(1:2);
@@ -294,20 +322,7 @@ classdef MainPMTData < handle
                         obj.BinPMTData(i,get(obj.handles.ManualDelay,'Value'));
                     end
             end
-            function PlotPDV(obj,Pidx,Ridx)
-                PDV_Data = obj.PDVData{Pidx};
-                try
-                   Delay = obj.DataStorage{Ridx}.Delay;
-                catch
-                    Delay = 0;
-                end
-                axes(obj.handles.RadAxis);
-                %}
-                Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                yyaxis right;
-                semilogx(Time,Velocity,'Color','k');
-                xlim([1E-9,2E-6]);
-            end
+            
             
 
     end
