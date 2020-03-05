@@ -185,6 +185,7 @@ classdef MainPMTData < handle
             ylabel('total radiance (W/sr-m^2)','Color','r'); xlabel('time (s)')
             text = sprintf('Radiance Plot of %s',obj.fileNames{idx});
             title(text);
+            obj.PlotPDV();
         end
             function TempPlot(obj,idx)
                 axes(obj.handles.TempAxis); hold off;
@@ -222,19 +223,30 @@ classdef MainPMTData < handle
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
             end
             function PlotPDV(obj)
-                Pidx = get(obj.handles.PDVFileList,'Value');
-                Pidx = min(Pidx);
-                PDV_Data = obj.PDVData{Pidx};
+                
                 axes(obj.handles.RadAxis); yyaxis right;
                 set(obj.handles.RadAxis.YAxis,'Color','k');
                 if get(obj.handles.PDVPlot_Box,'Value')
                     try
                        Ridx = min(obj.selectedFiles);
+                       PDVNames = get(obj.handles.PDVFileList,'String');
+                       A = cellfun(@(x) split(x,'_'),PDVNames,'UniformOutput',false);
+                       A = cellfun(@(x) x{1},A,'UniformOutput',false);
+                       B = split(obj.fileNames{Ridx},'.');B = B{1};
+                       try
+                            Pidx = find(strcmp(A,B));
+                            set(obj.handles.PDVFileList,'Value',Pidx);
+                       catch
+                           Pidx = get(obj.handles.PDVFileList,'Value');
+                           Pidx = min(Pidx);
+                       end
                        Delay = obj.DataStorage{Ridx}.Delay;
+                       
                     catch
                         Delay = 0;
                     end
                     %}
+                    PDV_Data = obj.PDVData{Pidx};
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
                     Time = Time(Time<2E-7); Velocity = Velocity(Time<2E-7);
                     Velocity(Velocity > 4.5) = NaN;

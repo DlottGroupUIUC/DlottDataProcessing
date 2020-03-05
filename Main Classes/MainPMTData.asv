@@ -26,6 +26,7 @@ classdef MainPMTData < handle
                 obj.PDVData = varargin{1};
                 set(obj.handles.PDVFileList,'String',varargin{2});
                 set(obj.handles.PDVPlot_Box,'Enable','on');
+                set(obj.handles.PDVFileList,'Enable','on');
             end
             %Store Filter Matrix here, I didn't do it in the data object
             %because I don't want to keep opening and closing a text file
@@ -178,11 +179,13 @@ classdef MainPMTData < handle
             axes(obj.handles.RadAxis);
             time = obj.DataStorage{idx}.BinData(:,1);
             Radiance = obj.DataStorage{idx}.binRad;
-            yyaxis left; Ax = gca; set(Ax.YAxis,'Color','r');
+            yyaxis left; Ax = gca; set(Ax.YAxis,'Color','k');
             semilogx(time,Radiance,'linewidth',3,'Color','r'); xlim([1E-9,5E-7]);
-            ylabel('total radiance (W/sr-m^2)'); xlabel('time (s)')
+            ylim([0,max(Radiance)*1.05])
+            ylabel('total radiance (W/sr-m^2)','Color','r'); xlabel('time (s)')
             text = sprintf('Radiance Plot of %s',obj.fileNames{idx});
             title(text);
+            obj.PlotPDV();
         end
             function TempPlot(obj,idx)
                 axes(obj.handles.TempAxis); hold off;
@@ -220,30 +223,35 @@ classdef MainPMTData < handle
                 obj.handles.axes5.ButtonDownFcn = @obj.FindCoordinates;
             end
             function PlotPDV(obj)
-                    Pidx = get(obj.handles.PDVFileList,'Value');
-                    Pidx = min(Pidx);
-                Ridx = obj.handles.selectedIndex;
+                Pidx = get(obj.handles.PDVFileList,'Value');
+                Pidx = min(Pidx);
                 PDV_Data = obj.PDVData{Pidx};
-                axes(handles.RadAxis); yyaxis right;
-                set(handles.RadAxis.YAxis,'Color','k');
+                axes(obj.handles.RadAxis); yyaxis right;
+                set(obj.handles.RadAxis.YAxis,'Color','k');
                 if get(obj.handles.PDVPlot_Box,'Value')
                     try
+                       Ridx = min(obj.selectedFiles);
+                       PDVNames = get(obj.handles.PDVFileList,'String');
+                       A = cellfun(@(x) split(x,'_'),PDVNames,'UniformOutput',false);
+                       A = cellfun(@(x) x{1},A,'UniformOutput',false);
+                       B = split(obj.fileNames{Ridx},'.');B = B{1};
+                       try
+                            Pidx = find(strcmp(A,B))
+                       catch
+                       end
                        Delay = obj.DataStorage{Ridx}.Delay;
+                       
                     catch
                         Delay = 0;
                     end
-                    axes(obj.handles.RadAxis);
                     %}
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                    Time = Time(Time<1E-7); Velocity = Velocity(Time<1E-7);
+                    Time = Time(Time<2E-7); Velocity = Velocity(Time<2E-7);
                     Velocity(Velocity > 4.5) = NaN;
-                    Ax = gca;
-                    yyaxis right; hold off;
-                    semilogx(Time,Velocity,'Color','k');
-                    xlim([1E-9,2E-6]); ylim([0,4.5]);
+                    semilogx(Time,Velocity,'linewidth',2,'Color','k');
+                    xlim([1E-9,5E-7]); ylim([0,4.5]);
+                    ylabel('velocity (km/s)');
                 else
-                    axes(handles.RadAxis); yyaxis right;
-                    set(handles.RadAxis.YAxis,'Color','k');
                     plot(NaN,NaN);
                 end
             end
