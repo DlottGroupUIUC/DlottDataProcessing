@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 04-Mar-2020 09:58:06
+% Last Modified by GUIDE v2.5 06-Mar-2020 11:32:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -770,7 +770,24 @@ function PDVPlot_Box_Callback(hObject, eventdata, handles)
 % hObject    handle to PDVPlot_Box (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
     handles.MainData.PlotPDV();
 
 % Hint: get(hObject,'Value') returns toggle state of PDVPlot_Box
+
+
+% --- Executes on button press in DelayAdjustButton.
+function DelayAdjustButton_Callback(hObject, eventdata, handles)
+% hObject    handle to DelayAdjustButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    idx = min(handles.selectedFiles);
+    handles.MainData.BinPMTData(idx,2);
+
+
+% --------------------------------------------------------------------
+function VelocitySave_Callback(hObject, eventdata, handles)
+% hObject    handle to VelocitySave (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SaveListClick(hObject)
+guidata(hObject,handles);

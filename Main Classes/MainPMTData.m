@@ -130,6 +130,7 @@ classdef MainPMTData < handle
                 case 1 %manually input
                     delayData = get(obj.handles.FileList,'data');
                     delay = delayData{idx,2};
+
                     switch class(delay)
                         case 'char'
                             delay = convertCharsToStrings(delay);
@@ -138,6 +139,12 @@ classdef MainPMTData < handle
                             delay = double(delay);
                     end
                     FileData.Delay = delay.*1E-9; %convert to s
+                case 2 %found from ginput
+                    delayData = get(obj.handles.FileList,'data');
+                    delay = delayData{idx,2};
+                    offset = ginput(1); offset = offset(1)*1E9;
+                    delay = delay + offset;
+                    FileData.Delay = double(delay).*1E-9; %convert to s
             end
                     
             delayData = get(obj.handles.FileList,'data');
@@ -188,7 +195,8 @@ classdef MainPMTData < handle
             obj.PlotPDV();
         end
             function TempPlot(obj,idx)
-                axes(obj.handles.TempAxis); hold off;
+                axes(obj.handles.TempAxis);
+                yyaxis left; hold off;
                 Temp = obj.DataStorage{idx}.binGray.Temp;
                 TempError = obj.DataStorage{idx}.binGray.TempError;
                 time = obj.DataStorage{idx}.BinData(:,1);
@@ -224,8 +232,7 @@ classdef MainPMTData < handle
             end
             function PlotPDV(obj)
                 
-                axes(obj.handles.RadAxis); yyaxis right;
-                set(obj.handles.RadAxis.YAxis);
+                
                 if get(obj.handles.PDVPlot_Box,'Value')
                     try
                        Ridx = min(obj.selectedFiles);
@@ -246,6 +253,20 @@ classdef MainPMTData < handle
                         Delay = 0;
                     end
                     %}
+                    %%Plot on Radiance
+                    axes(obj.handles.RadAxis); yyaxis right;
+                    hold off;
+                    PDV_Data = obj.PDVData{Pidx};
+                    Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
+                    Time = Time(Time<5E-8); Velocity = Velocity(Time<5E-8);
+                    Velocity(Velocity > 4.5) = NaN;
+                    semilogx(Time,Velocity,'linewidth',2,'Color','k');
+                    xlim([1E-9,5E-7]); ylim([0,4.5]);
+                    ylabel('velocity (km/s)');
+                    
+                    %%Plot on Temperature
+                    axes(obj.handles.TempAxis); yyaxis right;
+                    hold off;
                     PDV_Data = obj.PDVData{Pidx};
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
                     Time = Time(Time<5E-8); Velocity = Velocity(Time<5E-8);
@@ -254,6 +275,9 @@ classdef MainPMTData < handle
                     xlim([1E-9,5E-7]); ylim([0,4.5]);
                     ylabel('velocity (km/s)');
                 else
+                    yyaxis right;
+                    plot(NaN,NaN);
+                    axes(obj.handles.RadAxis); yyaxis right;
                     plot(NaN,NaN);
                 end
             end
@@ -306,6 +330,12 @@ classdef MainPMTData < handle
                     case 'off'
                         saveSettings.Spectrum = 0;
                 end
+                switch get(obj.handles.PDVSave,'Checked')
+                    case 'on'
+                        saveSettings.PDV = 1;
+                    case 'off'
+                        saveSettings.PDV = 0;
+                end
                 WD = pwd();
                 cd(obj.filePath);
                 [SaveFile,SavePath] = uiputfile('*.txt','Select Save File Destination');
@@ -323,6 +353,9 @@ classdef MainPMTData < handle
                     for idx = 1:length(obj.fileNames)
                         obj.SaveSpecRad(SavePath,idx);
                     end
+                end
+                if saveSettings.PDV
+                    obj.PDVData.Vel2Text(SavePath);
                 end
             end
             function AddPDVData(obj,Data,Names)
@@ -469,6 +502,27 @@ classdef MainPMTData < handle
                 fclose(fid);
                 %now insert data vector
                 dlmwrite(fullfile(sPath,sName),full_save,'-append','delimiter','\t');
+        end
+        function Vel2Text(obj,sPath)
+            hdr1 = {}; hdr2 = {}; hdr3 = {};
+            max_vector_size = [];
+                for i=1:length(obj.DataStorage)
+                    max_vector_size(i) = length(obj.DataStorage{i}.VelTime);
+                end
+                max_vector_size = max(max_vector_size);
+            full_save = {};
+            
+            for i = 1:length(obj.DataStorage)
+                Offset = obj.DataStorage{i}.Delay.*1E9;
+                curr_size = length(obj.PDVData.VelTime);
+                save_data = [];
+                save_data(1:max_vector_size,1:2) = NaN;
+                hdr1 = [hdr1,'Time','Velocity'];
+                hdr2 = [hdr2,'ns','km/s'];
+                hdr3 = [hdr3, obj.PDVData.fileNames{i},obj.PDVData.fileNames{i}];
+                save_data(1:curr_size,:) = [obj.DataStorage{i}.VelTime-Offset,obj.DataStorage{i}.Velocity];
+                full_save{i} = save_data;
+            end
         end
 
     end
