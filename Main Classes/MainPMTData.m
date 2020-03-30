@@ -292,7 +292,10 @@ classdef MainPMTData < handle
                 if length(children) > 2
                     delete(children(1));
                 end
+                try
                 xline(time(t_idx)); hold off;
+                catch
+                end
                 axes(obj.handles.SpectrumAxis); hold off;
                 Spectrum = obj.DataStorage{idx}.BinData(t_idx,2:end);
                 lambda = obj.DataStorage{idx}.GetWavelength();
@@ -330,7 +333,7 @@ classdef MainPMTData < handle
                     case 'off'
                         saveSettings.Spectrum = 0;
                 end
-                switch get(obj.handles.PDVSave,'Checked')
+                switch get(obj.handles.VelocitySave,'Checked')
                     case 'on'
                         saveSettings.PDV = 1;
                     case 'off'
