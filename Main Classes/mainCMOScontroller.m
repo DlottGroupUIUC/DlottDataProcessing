@@ -58,12 +58,12 @@ classdef mainCMOScontroller < handle
             filename = strsplit(filename,'.');
             Fname = filename{1}; Fname = sprintf('%s.tiff',Fname);
             imMatrix = obj.MakeImage(idx);
-            imMatrix = uint16(round(imMatrix.*65535));
+            imMatrix = uint8(round(imMatrix.*255));
             t = Tiff(fullfile(Fpath,Fname),'w');
             tagstruct.ImageLength = size(imMatrix,1);
             tagstruct.ImageWidth = size(imMatrix,2);
             tagstruct.Photometric = Tiff.Photometric.RGB;
-            tagstruct.BitsPerSample = 16;
+            tagstruct.BitsPerSample = 8;
             tagstruct.SamplesPerPixel = 3;
             tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
             tagstruct.Software = 'Matlab';
@@ -158,7 +158,8 @@ classdef mainCMOScontroller < handle
                 Imin = str2double(get(obj.handles.SaveIntensityZero,'String'));
                 Imax = str2double(get(obj.handles.SaveIntensityMax,'String'));
                 textLeft = sprintf('Scale = %d \n Gain = %d \n Exposure = %d ns',Imax,Gain,ExposureTime);
-                Image1 = insertText(Image,DimMat,textLeft,'FontSize',Font,'BoxColor','blue','TextColor','white');
+                Image1 = insertText(Image,DimMat,textLeft,'FontSize',Font,'BoxColor','black','TextColor','white');
+                Image1 = rgb2gray(Image1);
                 
             else
                 Image1 = Image;
@@ -174,7 +175,8 @@ classdef mainCMOScontroller < handle
                 end
                 delay = CDelay - FDelay;
                 textRight = sprintf('Delay = %d ns',delay);
-                Image2 = insertText(Image1,DimMat,textRight,'FontSize',Font,'BoxColor','blue','TextColor','white');
+                Image2 = insertText(Image1,DimMat,textRight,'FontSize',Font,'BoxColor','black','TextColor','white');
+                Image2 = rgb2gray(Image2);
             else
                 Image2 = Image1;
             end

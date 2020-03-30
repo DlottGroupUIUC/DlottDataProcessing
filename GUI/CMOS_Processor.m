@@ -116,7 +116,7 @@ function FileTable_CellSelectionCallback(hObject, eventdata, handles)
 try
 idx = eventdata.Indices(1); %retrieve selected row.
 handles.CMOSController.SelectImage(idx); %write it to controller instance
-catch
+catch ME
 end
 
 
