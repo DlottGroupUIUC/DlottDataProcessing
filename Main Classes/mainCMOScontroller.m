@@ -167,7 +167,7 @@ classdef mainCMOScontroller < handle
             if get(obj.handles.DelayLabel,'Value')
                 switch class(obj.CMOSData)
                     case('SifFile')
-                        DimMat = [1250,2350];
+                        DimMat = [1100,2350];
                         Font = 128;
                     case('CookeFiles')
                         DimMat = [750,1];
