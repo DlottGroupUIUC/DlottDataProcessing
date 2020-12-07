@@ -93,8 +93,11 @@ function PDVbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to PDVbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    mainPDV();
-    delete(handles.figure1);
+switch Input
+    case 'A201'
+        mainPDV();
+end
+delete(handles.figure1);
 
 % --- Executes on button press in PMTbutton.
 function PMTbutton_Callback(hObject, eventdata, handles)

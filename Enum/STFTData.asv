@@ -7,7 +7,6 @@ classdef STFTData < handle
        VelTime;
        T0;
        
-       
    end
    properties(Access = private)
         ScopeTime;
@@ -16,8 +15,6 @@ classdef STFTData < handle
        ProgHandles;
        Prog;
        TParams;
-       ChCount;
-       timing_vector = 3;
    end
    methods
        function obj = STFTData(T,V,STFTParams,TParams,ProgHandles)
@@ -35,13 +32,13 @@ classdef STFTData < handle
             r = round(SampleFreq.*(TimeWindow*1E-9));
             SampleRate = 0.08;
             test = round(SampleRate/SampleSpacing);
-            obj.ChCount = size(obj.ScopeVolt);
-            obj.ChCount = obj.ChCount(2); %number of column vectors;
-            switch obj.ChCount
+            ChCount = size(obj.ScopeVolt);
+            ChCount = ChCount(2); %number of column vectors;
+            switch ChCount
                 case 2
-                    obj.timing_vector = 2;
+                    timing_vector = 2;
                 case 4
-                    obj.timing_vector = 4;
+                    timing_vector = 4;
             end
             if test ==0
                 test = 1;
@@ -49,8 +46,8 @@ classdef STFTData < handle
             obj.Prog = 0;
             cAmp = obj.Detrend();
             
-            for i = 1:obj.ChCount
-                if i==obj.timing_vector
+            for i = 1:ChCount
+                if i==timing_vector
                     continue
                 end
                 [STFT,f,t] = spectrogram(cAmp(:,i),hamming(r),r-test,10*r,SampleFreq);
@@ -67,7 +64,7 @@ classdef STFTData < handle
             %%
             obj.Prog = 9/12; obj.ProgressBar();
             %%
-            STFT_tot = STFT_tot./(obj.ChCount-1);
+            STFT_tot = STFT_tot./(ChCount-1);
             velocity_axis = f.*0.775./1e9;
             VelTime = (t.*1e9)'+obj.STFTParams{3};
             %%
@@ -106,14 +103,9 @@ classdef STFTData < handle
    end
        methods(Access = private)
            function [cAmp] = Detrend(obj)
-               switch obj.ChCount
-                   case 4
-                        A = [0.35,0.37,1,0.34]; %Correction factor
-                   case 2
-                        A = [1,1];
-               end
-                for i = 1:obj.ChCount
-                    if i ==obj.timing_vector
+                A = [0.35,0.37,1,0.34]; %Correction factor
+                for i = 1:4
+                    if i ==3
                         cAmp(:,i) = obj.ScopeVolt(:,i);
                         continue
                     end

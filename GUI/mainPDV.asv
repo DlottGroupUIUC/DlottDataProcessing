@@ -41,7 +41,7 @@ function varargout = mainPDV(varargin)
 
 % Edit the above text to modify the response to help mainPDV
 
-% Last Modified by GUIDE v2.5 07-Dec-2020 14:45:55
+% Last Modified by GUIDE v2.5 07-Dec-2020 14:33:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -300,25 +300,26 @@ handles.fileNames = fnames; handles.filePath = fpath;
 set(handles.FileList,'Value',1); 
 set(handles.FileList,'String',fnames');
 handles.selectedIndex = 1;
-handles.ChCount = FindChannelCount(fnames,fpath);
 guidata(hObject,handles)
+ChCount = handles.FindChannelCount(fnames,fpath);
 handles.PDV_Data = MainPDVData(handles.figure1);
 guidata(hObject,handles);
 
 function N_ch = FindChannelCount(fnames,fpath)
-    name = fnames{1};
+    name = obj.handles.fileNames{idx};
     name = strsplit(name,'Ch'); name = name{1};
     n = 0;
+    try
             for i = 1:4
-                try
                 channel_name=strcat(name,sprintf('Ch%d.txt',i));
-                fid = fopen(fullfile(fpath,channel_name));
+                fid = fopen(fullfile(obj.handles.filePath,channel_name));
                 fclose(fid);
                 n = n+1;
-                catch
-                end
             end
-            N_ch = n;
+            N_ch = 4;
+    catch
+        N_ch = n
+    end
 % --- Executes on button press in RunSTFTAll.
 function RunSTFTAll_Callback(hObject, eventdata, handles)
 % hObject    handle to RunSTFTAll (see GCBO)
@@ -626,4 +627,8 @@ end
 
 
 % --------------------------------------------------------------------
-
+function SingleChannel_Menu_Callback(hObject, eventdata, handles)
+% hObject    handle to SingleChannel_Menu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.PDV_Data. fuck

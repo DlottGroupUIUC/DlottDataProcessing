@@ -62,18 +62,13 @@ classdef MainPDVData < handle
             else
                 Offset = 0;
             end
-            for i = 1:obj.ChCount
-                if i ==obj.timing_vector
+            for i = 1:4
+                if i ==3
                     continue
                 else
                     plot(obj.ScopeTime{idx}-Offset,obj.ScopeVolt{idx}(:,i)); hold on;
                 end
-                switch obj.ChCount
-                    case 2
-                        legend('Ch. 1');
-                    case 4
-                        legend('Ch. 1','Ch. 2','Ch. 4');
-                end
+                legend('Ch. 1','Ch. 2','Ch. 4');
             end
             if ~isempty(obj.DataStorage{idx})
                 axes(obj.handles.LineoutAxis); hold off;
@@ -339,12 +334,10 @@ classdef MainPDVData < handle
             switch obj.handles.ChCount
                 case 2
                     Ch_List = 1:2:3;
-                    timing_vector = 2;
+                    timing_vector = 
                 case 4
-                    Ch_List = 1:4;
-                    timing_vector = 3;
+                    Ch_List = 1:4
             end
-            j = 1;
             for i = Ch_List
                 channel_name=strcat(name,sprintf('Ch%d.txt',i));
                 fid = fopen(fullfile(obj.handles.filePath,channel_name));
@@ -360,11 +353,10 @@ classdef MainPDVData < handle
                 if i==1
                     ScopeTime = file(:,1) + abs(file(1,1));
                 end
-                ScopeVolt(:,j) = file(:,2);
+                ScopeVolt(:,i) = file(:,2);
                 clear file
-                j = j+1;
             end
-            [maximum, maximum_index] = max(ScopeVolt(:,timing_vector));
+            [maximum, maximum_index] = max(ScopeVolt(:,3));
             time_vector = ScopeTime(1:maximum_index);
             index90 = length(time_vector(time_vector<=maximum*0.9));
             time90 = ScopeTime(index90).*1e9;
