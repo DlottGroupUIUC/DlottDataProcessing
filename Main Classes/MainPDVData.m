@@ -13,6 +13,7 @@ classdef MainPDVData < handle
         ProgBar;
         ProgText;
         Prog;
+        timing_vector = 3;
         HugoniotDictionary; %Containers.map structure for hugoniot parameters;
         %Each entry listed as Us = A + b*up^2 + c*up a value associated
         %with a key is [A,b,c,rho]
@@ -62,13 +63,13 @@ classdef MainPDVData < handle
             else
                 Offset = 0;
             end
-            for i = 1:obj.ChCount
+            for i = 1:obj.handles.ChCount
                 if i ==obj.timing_vector
                     continue
                 else
                     plot(obj.ScopeTime{idx}-Offset,obj.ScopeVolt{idx}(:,i)); hold on;
                 end
-                switch obj.ChCount
+                switch obj.handles.ChCount
                     case 2
                         legend('Ch. 1');
                     case 4
