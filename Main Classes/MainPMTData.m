@@ -95,7 +95,7 @@ classdef MainPMTData < handle
             %different files in one batdch
             obj.UnitConv = []; %clear current calibration data
             obj.Calibrate(); %populate new calibartion data
-            
+        end    
         function BinPMTData(obj,idx,ManualDelay)
             if isempty(obj.UnitConv)
                 obj.Calibrate();
