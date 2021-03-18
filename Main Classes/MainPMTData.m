@@ -90,6 +90,12 @@ classdef MainPMTData < handle
             TableData(Index,2) = {uint16(FileData.Delay.*1E9)};
             set(obj.handles.FileList,'data',TableData);
         end
+        function NewCalibration(obj)
+            %Load New Cal file in case you need different calibrations for
+            %different files in one batdch
+            obj.UnitConv = []; %clear current calibration data
+            obj.Calibrate(); %populate new calibartion data
+            
         function BinPMTData(obj,idx,ManualDelay)
             if isempty(obj.UnitConv)
                 obj.Calibrate();

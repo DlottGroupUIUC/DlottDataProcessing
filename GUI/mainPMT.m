@@ -1,4 +1,4 @@
-%%Main PMT Module Notes
+% %%Main PMT Module Notes
 %Author: Larry Salvati, utilizing code based on programs by Will Bassett
 %salvati3@illinois.edu
 %This program immediately passes the figure handle to a class instance
@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 06-Mar-2020 11:32:19
+% Last Modified by GUIDE v2.5 18-Mar-2021 13:22:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -791,3 +791,11 @@ function VelocitySave_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 SaveListClick(hObject)
 guidata(hObject,handles);
+
+
+% --------------------------------------------------------------------
+function NewCalFile_Callback(hObject, eventdata, handles)
+% hObject    handle to NewCalFile (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.MainData.NewCalibration();
