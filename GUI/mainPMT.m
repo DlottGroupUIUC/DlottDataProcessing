@@ -91,7 +91,7 @@ function varargout = mainPMT(varargin)
 
 % Edit the above text to modify the response to help mainPMT
 
-% Last Modified by GUIDE v2.5 18-Mar-2021 13:22:42
+% Last Modified by GUIDE v2.5 25-Mar-2021 11:57:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -799,3 +799,49 @@ function NewCalFile_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.MainData.NewCalibration();
+
+
+% --- Executes on selection change in GraphDecadeDropDown.
+function GraphDecadeDropDown_Callback(hObject, eventdata, handles)
+% hObject    handle to GraphDecadeDropDown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns GraphDecadeDropDown contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from GraphDecadeDropDown
+
+
+% --- Executes during object creation, after setting all properties.
+function GraphDecadeDropDown_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to GraphDecadeDropDown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function GraphEndDecadeEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to GraphEndDecadeEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of GraphEndDecadeEdit as text
+%        str2double(get(hObject,'String')) returns contents of GraphEndDecadeEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function GraphEndDecadeEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to GraphEndDecadeEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

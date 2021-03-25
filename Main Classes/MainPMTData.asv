@@ -193,7 +193,7 @@ classdef MainPMTData < handle
             time = obj.DataStorage{idx}.BinData(:,1);
             Radiance = obj.DataStorage{idx}.binRad;
             yyaxis left; Ax = gca; set(Ax.YAxis,'Color','k');
-            xmax = str2num(obj.handles.GraphEndDecadeEdit.String);
+            xmax = double(obj.handles.GraphEndDecadeEdit.String);
             semilogx(time,Radiance,'linewidth',3,'Color','r'); xlim([1E-9,xmax]);
             ylim([0,max(Radiance)*1.05])
             ylabel('total radiance (W/sr-m^2)','Color','r'); xlabel('time (s)')
@@ -207,9 +207,8 @@ classdef MainPMTData < handle
                 Temp = obj.DataStorage{idx}.binGray.Temp;
                 TempError = obj.DataStorage{idx}.binGray.TempError;
                 time = obj.DataStorage{idx}.BinData(:,1);
-                xmax = str2num(obj.handles.GraphEndDecadeEdit.String);
                 semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
-                xlim([1E-9,xmax]); ylim([0,max(Temp)+500]);
+                xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
                 text = sprintf('Temp Plot of %s',obj.fileNames{idx});
                 title(text);
             end
@@ -219,8 +218,7 @@ classdef MainPMTData < handle
                 EmissivityError = obj.DataStorage{idx}.binGray.EmissivityError;
                 time = obj.DataStorage{idx}.BinData(:,1);
                 semilogx(time,Emissivity,'o'); hold on; errorbar(time,Emissivity,EmissivityError,'LineStyle','none','Color','b');
-                xmax = str2num(obj.handles.GraphEndDecadeEdit.String);
-                xlim([1E-9,xmax]); ylim([0,max(Emissivity)+0.1]);
+                xlim([1E-9,2E-6]); ylim([0,max(Emissivity)+0.1]);
                 text = sprintf('Emissivity Plot of %s',obj.fileNames{idx});
                 title(text);
             end
@@ -230,8 +228,7 @@ classdef MainPMTData < handle
                 Temp = obj.DataStorage{idx}.binGray.Temp;
                 TempError = obj.DataStorage{idx}.binGray.TempError;
                 time = obj.DataStorage{idx}.BinData(:,1);
-                xmax = str2num(obj.handles.GraphEndDecadeEdit.String);
-                xlim([1E-9,xmax]); ylim([0,max(Temp)+500]);
+                xlim([1E-9,2E-6]); ylim([0,max(Temp)+500]);
                 yyaxis left; hold off;
                 semilogx(time,Temp,'o'); hold on; errorbar(time,Temp,TempError,'LineStyle','none','Color','b');
                 yyaxis right; hold off;
@@ -271,8 +268,7 @@ classdef MainPMTData < handle
                     Time = Time(Time<5E-8); Velocity = Velocity(Time<5E-8);
                     Velocity(Velocity > 4.5) = NaN;
                     semilogx(Time,Velocity,'linewidth',2,'Color','k');
-                    xmax = double(obj.handles.GraphEndDecadeEdit.String);
-                    xlim([1E-9,xmax]); ylim([0,4.5]);
+                    xlim([1E-9,5E-7]); ylim([0,4.5]);
                     ylabel('velocity (km/s)');
                     
                     %%Plot on Temperature
