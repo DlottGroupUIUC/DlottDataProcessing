@@ -254,7 +254,9 @@ classdef MainPDVData < handle
             %In order to calculate for PDV where flyer is visible, it is
             %easier and more general to have user input x0
             axes(obj.handles.WaveformAxis);
+            title('select start');
             [x0,~] = ginput(1);
+            title('select end');
             [xf,~] = ginput(1);
             obj.DataStorage{idx}.Duration = xf-x0;
             MIndex = get(obj.handles.TargetMaterialMenu,'Value');
