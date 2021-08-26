@@ -90,8 +90,11 @@ classdef MainPDVData < handle
                 if strcmp(class(obj.DataStorage{idx}),'PeakFitData')
                     axes(obj.handles.WaveformAxis);
                     for i = 1:length(obj.TimingParams.ChList)
+                        try
                         PeakVolt = obj.DataStorage{idx}.PeakVolt{i};
                         scatter(PeakVolt(:,1)-Offset,PeakVolt(:,2),50,'LineWidth',2);
+                        catch
+                        end
                     end
                     legend('Ch. 1','Ch. 2','Ch. 4','Ch. 1 Pk','Ch. 2 Pk','Ch. 4 Pk');
                     

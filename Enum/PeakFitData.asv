@@ -77,8 +77,6 @@ classdef PeakFitData < handle
                 velocity0 = 0;
                 if length(ChList) == 3
                     XYMAT=sortrows([xPeaks{1},velocity{1};xPeaks{2},velocity{2};xPeaks{3},velocity{3};obj.ScopeTime(x0),velocity0]);
-                else
-                    XYMAT = sortrows([xPeaks{1},velocity{1};obj.ScopeTime(x0),0]);
                 end
                 velocityTime=XYMAT(:,1);
                 velocity_final=XYMAT(:,2);
@@ -165,12 +163,8 @@ classdef PeakFitData < handle
                 idx_0 = length(obj.PeakVolt{k}(obj.PeakVolt{k}(:,1)<=obj.ScopeTime(x0),1));
                 velocity{k}=0.3875./diff(obj.PeakVolt{k}(idx_0+1:end,1));
                 xPeaks{k}=obj.PeakVolt{k}(idx_0+1:end,1);xPeaks{k}(length(velocity{k}))=[];
-           end
-            try
-                XYMAT=sortrows([xPeaks{1},velocity{1};xPeaks{2},velocity{2};xPeaks{3},velocity{3};obj.ScopeTime(x0),0]);
-            catch
-                XYMAT=sortrows([xPeaks{1},velocity{1};obj.ScopeTime(x0),0]);
             end
+            XYMAT=sortrows([xPeaks{1},velocity{1};xPeaks{2},velocity{2};xPeaks{3},velocity{3};obj.ScopeTime(x0),0]);
             %velocityTime=XYMAT(:,1);
             velocity_final=XYMAT(:,2);
             x = smooth(velocity_final(3:end),3);
