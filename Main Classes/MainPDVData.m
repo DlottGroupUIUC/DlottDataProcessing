@@ -275,7 +275,7 @@ classdef MainPDVData < handle
             
             %Us = A+b*up^2 + c*up
             %Run exceptions for glass:
-            if strcmp(Material,'Pyrex');
+            if strcmp(Material,'Pyrex')
                 for i = 1:length(up)
                     if up(i) < 0.568
                          cg = 1.861;%% note: these are specific to GLASS, from the glass hugoniot --> that is why the constants change for different velocities 

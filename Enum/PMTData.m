@@ -136,7 +136,7 @@ methods(Access = private)
                 end
 
                     %Condense output vectors
-                obj.BinData = zeros(128,33);
+                obj.BinData = zeros(150,33);
                 obj.BinData(1:length(binTime),1)=binTime;
                 obj.BinData(1:length(binTime),[2:33])=binSpecRad;
                 %sift columns for excluded channels
@@ -149,7 +149,7 @@ methods(Access = private)
                     end
                 end
                 %Total Radiance
-                obj.binRad = NaN(128,1);
+                obj.binRad = NaN(150,1);
                 obj.binRad(1:length(binTime)) = sum(binSpecRad,2)*1e-9;
                 %Once binning is done clear full vectors from memory. It is
                 %no longer needed

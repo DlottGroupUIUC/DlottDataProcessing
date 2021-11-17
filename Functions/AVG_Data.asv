@@ -7,7 +7,7 @@ for q=1:N
     
     data=Short_Radiance_Matrix(:,:,q); %pull individual matrix out
     
-    while size(data,1)>150 %generalize for more binning params
+    while size(data,1)>1 %generalize for more binning params
         
         data(1,:)=[];
         
