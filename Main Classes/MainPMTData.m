@@ -267,12 +267,13 @@ classdef MainPMTData < handle
                     axes(obj.handles.RadAxis); yyaxis right;
                     hold off;
                     PDV_Data = obj.PDVData{Pidx};
+                    
                     Time = PDV_Data.VelTime.*1E-9 - Delay; Velocity = PDV_Data.Velocity;
-                    Time = Time(Time<5E-8); Velocity = Velocity(Time<5E-8);
+                    Time = Time(Time<5E-7); Velocity = Velocity(Time<5E-7);
                     Velocity(Velocity > 4.5) = NaN;
                     semilogx(Time,Velocity,'linewidth',2,'Color','k');
                     xmax = double(obj.handles.GraphEndDecadeEdit.String);
-                    xlim([1E-9,xmax]); ylim([0,4.5]);
+                    xlim([1E-9,~]); ylim([0,4.5]);
                     ylabel('velocity (km/s)');
                     
                     %%Plot on Temperature
